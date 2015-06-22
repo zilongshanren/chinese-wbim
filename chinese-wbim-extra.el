@@ -1,9 +1,9 @@
-;;; chinese-wbim-extra --- Enable Wubi(五笔) Input Method in Emacs.
+;;; chinese-wbim-extra --- Enable Wubi(五笔) Input Method in Emacs.
 
 ;; Copyright (C) 2015-2016, Guanghui Qu
 
 ;; Author: Guanghui Qu<guanghui8827@gmail.com>
-;; URL: https://github.com/andyque/chinese-wbim
+;; URL: https://github.com/andyque/chinese-wbim
 ;; Version: 0.1
 ;; Keywords: Wubi Input Method.
 ;;
@@ -15,14 +15,14 @@
 
 ;;; License:
 
-;; This file is part of chinese-wbim
+;; This file is part of chinese-wbim
 ;;
-;; chinese-wbim is free software: you can redistribute it and/or
+;; chinese-wbim is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as published
 ;; by the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 ;;
-;; chinese-wbim is distributed in the hope that it will be useful,
+;; chinese-wbim is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -36,7 +36,7 @@
 
 (eval-when-compile
   (require 'cl))
-(require 'chinese-wbim)
+(require 'chinese-wbim)
 
 (defvar eim-punc-escape-list
   (number-sequence ?0 ?9)
@@ -97,18 +97,18 @@ If you don't like this funciton, set the variable to nil")
           (> (prefix-numeric-value arg) 0))))
 
 ;;;_. 一个快速插入英文的命令。按自己的需要绑定到 ";"
-(defun eim-insert-ascii () 
-  (interactive) 
+(defun eim-insert-ascii ()
+  (interactive)
   (if current-input-method
       (let (c)
         (message (format "自定义输入(直接空格%s, 回车%c): "
                          (cdr eim-insert-ascii-char)
                          (car eim-insert-ascii-char)))
-        (setq c (read-event)) 
+        (setq c (read-event))
         (cond ((= c ? ) (insert (cdr eim-insert-ascii-char)))
               ((= c ?\r) (insert-char (car eim-insert-ascii-char) 1))
-              (t 
-               (setq unread-command-events (list last-input-event)) 
+              (t
+               (setq unread-command-events (list last-input-event))
                (insert (read-from-minibuffer "自定义输入: ")))))
     (call-interactively 'self-insert-command)))
 
@@ -133,7 +133,7 @@ If you don't like this funciton, set the variable to nil")
   (interactive)
   (let* ((eim-current-package package)
          (history (eim-history)))
-    (with-temp-buffer 
+    (with-temp-buffer
       (erase-buffer)
       (let (pos)
         (maphash (lambda (key val)
@@ -179,7 +179,7 @@ If you don't like this funciton, set the variable to nil")
              (setq eim-current-package
                    (if (= (length eim-package-list) 1)
                        (cdar eim-package-list)
-                     (assoc 
+                     (assoc
                       (completing-read "In package: "
                                        eim-package-list nil t
                                        (caar eim-package-list))
@@ -209,5 +209,5 @@ If you don't like this funciton, set the variable to nil")
   "Get the code of the character CHAR in TABLE."
   (symbol-value (intern-soft (char-to-string char) table)))
 
-(provide 'chinese-wbim-extra)
-;;; chinese-wbim-extra.el ends here
+(provide 'chinese-wbim-extra)
+;;; chinese-wbim-extra.el ends here
