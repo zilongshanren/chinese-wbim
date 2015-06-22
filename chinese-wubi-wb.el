@@ -111,7 +111,7 @@
     (load (concat path
                   (if (and (boundp 'eim-wb-use-gbk)
                            eim-wb-use-gbk)
-                      "eim-wb-gbk" "eim-wb-gb2312"))))
+                      "chinese-wubi-wb-gbk" "chinese-wubi-wb-gb2312"))))
 
   (eim-table-add-user-file eim-wb-user-file)
   (eim-table-load-history eim-wb-history-file)
