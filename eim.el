@@ -1006,4 +1006,5 @@ to the position of point in the selected window."
       (if (looking-at "^$")
           (delete-backward-char 1)))))
 
-;;;_* eim.el ends here
+(provide 'eim)
+;;; eim.el ends here
