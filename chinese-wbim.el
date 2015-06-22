@@ -1,9 +1,9 @@
-;;; chinese-wubi --- Enable Wubi(五笔) Input Method in Emacs.
+;;; chinese-wbim --- Enable Wubi(五笔) Input Method in Emacs.
 
 ;; Copyright (C) 2015-2016, Guanghui Qu
 
 ;; Author: Guanghui Qu<guanghui8827@gmail.com>
-;; URL: https://github.com/andyque/chinese-wubi
+;; URL: https://github.com/andyque/chinese-wbim
 ;; Version: 0.1
 ;; Keywords: Wubi Input Method.
 ;;
@@ -15,14 +15,14 @@
 
 ;;; License:
 
-;; This file is part of chinese-wubi
+;; This file is part of chinese-wbim
 ;;
-;; chinese-wubi is free software: you can redistribute it and/or
+;; chinese-wbim is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as published
 ;; by the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 ;;
-;; chinese-wubi is distributed in the hope that it will be useful,
+;; chinese-wbim is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -36,7 +36,7 @@
 ;; Put this file into your load-path and the following into your ~/.emacs:
 
 ;; (register-input-method
-;;  "chinese-wubi" "euc-cn" 'eim-use-package
+;;  "chinese-wbim" "euc-cn" 'eim-use-package
 ;;  "五笔" "汉字五笔输入法" "wb.txt")
 
 ;;; Code:
@@ -1007,5 +1007,5 @@ to the position of point in the selected window."
       (if (looking-at "^$")
           (delete-backward-char 1)))))
 
-(provide 'chinese-wubi)
-;;; chinese-wubi.el ends here
+(provide 'chinese-wbim)
+;;; chinese-wbim.el ends here

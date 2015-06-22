@@ -4,7 +4,7 @@
 [Parameter]
 first-char=zyxwvutsrqponmlkjihgfedcba
 total-char=zvxmljstpofieycwukbrqnhgda
-lib=chinese-wubi-wb
+lib=chinese-wbim-wb
 other-files=wbpy.txt
 page-length=3
 

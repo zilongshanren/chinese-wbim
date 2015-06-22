@@ -1,9 +1,9 @@
-;;; chinese-wubi-wb --- Enable Wubi(五笔) Input Method in Emacs.
+;;; chinese-wbim-wb --- Enable Wubi(五笔) Input Method in Emacs.
 
 ;; Copyright (C) 2015-2016, Guanghui Qu
 
 ;; Author: Guanghui Qu<guanghui8827@gmail.com>
-;; URL: https://github.com/andyque/chinese-wubi
+;; URL: https://github.com/andyque/chinese-wbim
 ;; Version: 0.1
 ;; Keywords: Wubi Input Method.
 ;;
@@ -15,14 +15,14 @@
 
 ;;; License:
 
-;; This file is part of chinese-wubi
+;; This file is part of chinese-wbim
 ;;
-;; chinese-wubi is free software: you can redistribute it and/or
+;; chinese-wbim is free software: you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as published
 ;; by the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 ;;
-;; chinese-wubi is distributed in the hope that it will be useful,
+;; chinese-wbim is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -45,7 +45,7 @@
 (eval-when-compile
   (require 'cl))
 
-(require 'chinese-wubi-table)
+(require 'chinese-wbim-table)
 
 (defgroup eim-wb nil
   "eim wubi input method"
@@ -111,7 +111,7 @@
     (load (concat path
                   (if (and (boundp 'eim-wb-use-gbk)
                            eim-wb-use-gbk)
-                      "chinese-wubi-wb-gbk" "chinese-wubi-wb-gb2312"))))
+                      "chinese-wbim-wb-gbk" "chinese-wbim-wb-gb2312"))))
 
   (eim-table-add-user-file eim-wb-user-file)
   (eim-table-load-history eim-wb-history-file)
@@ -125,5 +125,5 @@
   (eim-set-active-function 'eim-table-active-function)
   (setq eim-wb-initialized t))
 
-(provide 'chinese-wubi-wb)
-;;; chinese-wubi-wb.el ends here
+(provide 'chinese-wbim-wb)
+;;; chinese-wbim-wb.el ends here
