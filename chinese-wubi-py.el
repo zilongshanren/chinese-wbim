@@ -1,36 +1,43 @@
-;;; -*- coding: utf-8 -*-
-;;; eim-py.el --- emacs chinese pinyin input method for eim
+;;; chinese-wubi-py --- Enable Wubi(五笔) Input Method in Emacs.
 
-;; Copyright 2006 Ye Wenbin
-;;
-;; Author: wenbinye@163.com
-;; Version: $Id: eim-py.el,v 1.3 2007/01/14 01:52:46 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Copyright (C) 2015-2016, Guanghui Qu
 
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; Author: Guanghui Qu<guanghui8827@gmail.com>
+;; URL: https://github.com/andyque/chinese-wubi
+;; Version: 0.1
+;; Keywords: Wubi Input Method.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; This file is not part of GNU Emacs.
+
+;;; Credits:
+
+;; - Original Author: wenbinye@163.com
+
+;;; License:
+
+;; This file is part of chinese-wubi
+;;
+;; chinese-wubi is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; chinese-wubi is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;;;_* Code:
+;;; Code:
 
-(provide 'eim-py)
 (eval-when-compile
   (require 'cl))
-(require 'eim)
-(require 'eim-extra)
+(require 'chinese-wubi)
+(require 'chinese-wubi-extra)
 
 ;;;_. variable declare
 (defvar eim-py-shenmu '("b" "p" "m" "f" "d" "t" "n" "l" "g" "k" "h"
@@ -925,8 +932,5 @@
 ("zuo" "作" "做" "坐" "座" "左" "昨" "琢" "佐" "凿" "撮" "柞" "嘬" "怍" "胙" "唑" "笮" "阼" "祚" "酢")
 )))
 
-;;;_* py.el ends here
-
-;;; Local Variables:
-;;; allout-layout: (* 0 : )
-;;; End:
+(provide 'chinese-wubi-py)
+;;; chinese-wubi-py.el ends here

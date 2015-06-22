@@ -1,26 +1,34 @@
-;; -*- coding: utf-8 -*-
-;;; eim-wb.el --- emacs chinese wubi input method for eim
+;;; chinese-wubi-wb --- Enable Wubi(五笔) Input Method in Emacs.
 
-;; Copyright 2006 Ye Wenbin
-;;
-;; Author: wenbinye@163.com
-;; Version: $Id: eim-wb.el,v 1.3 2007/01/14 02:01:48 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Copyright (C) 2015-2016, Guanghui Qu
 
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; Author: Guanghui Qu<guanghui8827@gmail.com>
+;; URL: https://github.com/andyque/chinese-wubi
+;; Version: 0.1
+;; Keywords: Wubi Input Method.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; This file is not part of GNU Emacs.
+
+;;; Credits:
+
+;; - Original Author: wenbinye@163.com
+
+;;; License:
+
+;; This file is part of chinese-wubi
+;;
+;; chinese-wubi is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; chinese-wubi is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Features:
 ;; 1. 能导入输入历史
@@ -32,35 +40,35 @@
 
 ;;; Commentary:
 
-;;;_* Code:
+;;; Code:
 
 (eval-when-compile
   (require 'cl))
 
-(require 'eim-table)
+(require 'chinese-wubi-table)
 
 (defgroup eim-wb nil
   "eim wubi input method"
   :group 'eim)
   
 (defcustom eim-wb-history-file "~/.emacs.d/wbx-history"
-  "保存选择的历史记录"
+  "保存选择的历史记录."
   :type 'file
   :group 'eim-wb)
 
 (defcustom eim-wb-user-file "mywb.txt"
-  "保存用户自造词"
+  "保存用户自造词."
   :type 'file
   :group 'eim-wb)
 
 (defcustom eim-wb-save-always nil
-  "是否每次加入新词都要保存。
-当然设置为 nil，也会在退出 emacs 里保存一下的。"
+  "是否每次加入新词都要保存.
+当然设置为 nil，也会在退出 Emacs 里保存一下的."
   :type 'boolean
   :group 'eim-wb)
 
 (defcustom eim-wb-add-all-completion-limit 3
-  "在超过输入字符串超过这个长度时会添加所有补全。"
+  "在超过输入字符串超过这个长度时会添加所有补全."
   :type 'integer
   :group 'eim-wb)
 
@@ -71,7 +79,7 @@
 (defvar eim-wb-initialized nil)
 
 (defun eim-wb-create-word (word)
-  "Insert word to database and write into user file"
+  "Insert WORD to database and write into user file."
   (let ((len (length word))
         code)
     (setq code
@@ -100,7 +108,7 @@
     (define-key map "'" 'eim-quick-select-2))
   (defvar eim-wb-use-gbk nil)
   (let ((path (file-name-directory load-file-name)))
-    (load (concat path 
+    (load (concat path
                   (if (and (boundp 'eim-wb-use-gbk)
                            eim-wb-use-gbk)
                       "eim-wb-gbk" "eim-wb-gb2312"))))
@@ -117,5 +125,5 @@
   (eim-set-active-function 'eim-table-active-function)
   (setq eim-wb-initialized t))
 
-(provide 'eim-wb)
-;;; eim-wb.el ends here
+(provide 'chinese-wubi-wb)
+;;; chinese-wubi-wb.el ends here

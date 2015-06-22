@@ -1,34 +1,39 @@
-;;; -*- coding: utf-8 -*-
-;;; eim.el --- Emacs Input method
+;;; chinese-wubi --- Enable Wubi(五笔) Input Method in Emacs.
 
-;; Copyright 2006 Ye Wenbin
-;;
-;; Author: wenbinye@163.com
-;; Version: $Id: eim.el,v 1.5 2007/01/14 01:50:15 ywb Exp $
-;; Keywords:
-;; X-URL: not distributed yet
+;; Copyright (C) 2015-2016, Guanghui Qu
 
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; Author: Guanghui Qu<guanghui8827@gmail.com>
+;; URL: https://github.com/andyque/chinese-wubi
+;; Version: 0.1
+;; Keywords: Wubi Input Method.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; This file is not part of GNU Emacs.
+
+;;; Credits:
+
+;; - Original Author: wenbinye@163.com
+
+;;; License:
+
+;; This file is part of chinese-wubi
+;;
+;; chinese-wubi is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; chinese-wubi is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
 ;;
-
 ;; Put this file into your load-path and the following into your ~/.emacs:
-;; (add-to-list 'load-path "~/.emacs.d/site-lisp/eim")
-;; (autoload 'eim-use-package "eim" "Another emacs input method")
 
 ;; (register-input-method
 ;;  "eim-wb" "euc-cn" 'eim-use-package
@@ -39,7 +44,6 @@
 
 ;;; Code:
 
-(provide 'eim)
 (eval-when-compile
   (require 'cl))
 (require 'help-mode)
@@ -1006,5 +1010,5 @@ to the position of point in the selected window."
       (if (looking-at "^$")
           (delete-backward-char 1)))))
 
-(provide 'eim)
-;;; eim.el ends here
+(provide 'chinese-wubi)
+;;; chinese-wubi.el ends here

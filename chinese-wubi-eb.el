@@ -1,26 +1,34 @@
-;;; eim-eb.el --- 
+;;; chinese-wubi-eb --- Enable Wubi(五笔) Input Method in Emacs.
 
-;; Copyright (C) 2008 Free Software Foundation, Inc.
-;;
-;; Author: Ye Wenbin <wenbinye@gmail.com>
-;; Maintainer: Ye Wenbin <wenbinye@gmail.com>
-;; Created: 25 Apr 2008
-;; Version: 0.01
-;; Keywords: tools
+;; Copyright (C) 2015-2016, Guanghui Qu
 
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; Author: Guanghui Qu<guanghui8827@gmail.com>
+;; URL: https://github.com/andyque/chinese-wubi
+;; Version: 0.1
+;; Keywords: Wubi Input Method.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; This file is not part of GNU Emacs.
+
+;;; Credits:
+
+;; - Original Author: wenbinye@163.com
+
+;;; License:
+
+;; This file is part of chinese-wubi
+;;
+;; chinese-wubi is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; chinese-wubi is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -34,7 +42,7 @@
 (eval-when-compile
   (require 'cl))
 
-(require 'eim-table)
+(require 'chinese-wubi-table)
 
 (defvar eim-eb-user-file nil)
 (defvar eim-eb-history-file nil)
@@ -45,7 +53,7 @@
 (defvar eim-eb-char-table (make-vector 1511 0))
 
 (defun eim-eb-create-word (word)
-  "Insert word to database and write into user file"
+  "Insert word to database and write into user file."
   (let ((len (length word))
         code)
     (setq code
@@ -84,5 +92,5 @@
   (eim-set-active-function 'eim-table-active-function)
   (setq eim-eb-initialized t))
 
-(provide 'eim-eb)
-;;; eim-eb.el ends here
+(provide 'chinese-wubi-eb)
+;;; chinese-wubi-eb.el ends here

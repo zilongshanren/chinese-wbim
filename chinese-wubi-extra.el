@@ -1,40 +1,42 @@
-;;; -*- coding: utf-8 -*-
-;;; eim-extra.el --- provide extra function for chinese input method 
+;;; chinese-wubi-extra --- Enable Wubi(五笔) Input Method in Emacs.
 
-;; Copyright 2006 Ye Wenbin
-;;
-;; Author: wenbinye@163.com
-;; Version: $Id: eim-extra.el,v 1.2 2007/01/14 01:51:51 ywb Exp $
-;; Keywords: 
-;; X-URL: not distributed yet
+;; Copyright (C) 2015-2016, Guanghui Qu
 
-;; This program is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
-;; any later version.
+;; Author: Guanghui Qu<guanghui8827@gmail.com>
+;; URL: https://github.com/andyque/chinese-wubi
+;; Version: 0.1
+;; Keywords: Wubi Input Method.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; This file is not part of GNU Emacs.
+
+;;; Credits:
+
+;; - Original Author: wenbinye@163.com
+
+;;; License:
+
+;; This file is part of chinese-wubi
+;;
+;; chinese-wubi is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as published
+;; by the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; chinese-wubi is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program; if not, write to the Free Software
-;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;; 
+;;; Code:
 
-;; Put this file into your load-path and the following into your ~/.emacs:
-;;   (require 'eim-extra)
-
-;;;_* Code:
-
-(provide 'eim-extra)
 (eval-when-compile
   (require 'cl))
-(require 'eim)
+(require 'chinese-wubi)
 
 (defvar eim-punc-escape-list
   (number-sequence ?0 ?9)
@@ -143,7 +145,7 @@ If you don't like this funciton, set the variable to nil")
 
 ;;;_. 增加两个快速选择的按键
 (defun eim-quick-select-1 ()
-  "如果没有可选项，插入数字，否则选择对应的词条"
+  "如果没有可选项，插入数字，否则选择对应的词条."
   (interactive)
   (if (car eim-current-choices)
       (let ((index (eim-page-start))
@@ -156,7 +158,7 @@ If you don't like this funciton, set the variable to nil")
   (eim-terminate-translation))
 
 (defun eim-quick-select-2 ()
-  "如果没有可选项，插入数字，否则选择对应的词条"
+  "如果没有可选项，插入数字，否则选择对应的词条."
   (interactive)
   (if (car eim-current-choices)
       (let ((index (1+ (eim-page-start)))
@@ -197,14 +199,15 @@ If you don't like this funciton, set the variable to nil")
 
 ;;;_. char table
 (defun eim-make-char-table (chars table)
-  "Set `eim-char-database'"
+  "Set CHARS of `eim-char-database' in TABLE."
   (dolist (char chars)
     (let ((code (car char)))
       (dolist (c (cdr char))
         (set (intern c table) code)))))
 
 (defsubst eim-get-char-code (char table)
-  "Get the code of the character CHAR"
+  "Get the code of the character CHAR in TABLE."
   (symbol-value (intern-soft (char-to-string char) table)))
 
-;;; eim-extra.el ends here
+(provide 'chinese-wubi-extra)
+;;; chinese-wubi-extra.el ends here
