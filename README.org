@@ -28,6 +28,7 @@ eim-wb-user-file 的位置。eim-wb-history-file 要修改成能保存的文件�
 可。eim-wb-user-file 可以不修改，如果不改则使用默认的 mywb.txt。如果修
 改则可以自己指定一个文件。文件格式参考 mywb.txt。
 
+#+begin_src emacs-lisp
 (autoload 'eim-use-package "chinese-wubi" "Another emacs input method")
 ;; Tooltip 暂时还不好用
 (setq eim-use-tooltip nil)
@@ -42,6 +43,7 @@ eim-wb-user-file 的位置。eim-wb-history-file 要修改成能保存的文件�
 
 ;设置默认输入法
 (setq default-input-method 'chinese-wubi)
+#+end_src
 
 注意，如果所有文件都在 load-path 里的某个目录中，就能找到（如果没有同名
 文件的话），否则，请在文件或者配置中使用文件全名。
