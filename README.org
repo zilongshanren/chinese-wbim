@@ -1,8 +1,9 @@
 * 本项目说明
-本项目fork至https://github.com/wenbinye/emacs-eim，因为作者很久都不更新了，所以
-fork过来维护。
+本项目fork至https://github.com/wenbinye/emacs-eim
+因为作者很久都不更新了，所以fork过来维护。本项目的目的不是为了取代Emacs-eim,
+而是专注于改善Emacs中的五笔输入法。
 
-** 后续开发计划 [25%]
+* 后续开发计划 [25%]
 - [X] 添加MELPA支持
 - [ ] 重构代码，移除拼音输入法
 - [ ] 添加popup支持
