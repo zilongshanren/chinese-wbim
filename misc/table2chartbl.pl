@@ -95,7 +95,7 @@ table2chartbl.pl [-i im -f filter -o output] tables
 
 =head1 DESCRIPTION
 
-本程序用于从 eim 的输入法码表中提取汉字的转换表。
+本程序用于从 chinese-wbim 的输入法码表中提取汉字的转换表。
 
 =head1 AUTHOR
 

@@ -67,14 +67,14 @@ one is kept."
     list))
 
 ;;;_. customize varable
-(defgroup eim nil
-  "eim: emacs input method"
-  :group 'leim)
+(defgroup chinese-wbim nil
+  "chinese-wbim: emacs input method"
+  :group 'lchinese-wbim)
 (defvar chinese-wbim-page-length 7 "每页显示的词条数目")
 
 (defface chinese-wbim-string-face '((t (:underline t)))
   "Face to show current string"
-  :group 'eim)
+  :group 'chinese-wbim)
 
 ;;;_. variable declare
 (defvar chinese-wbim-package-list nil "所有正在使用的输入法")
@@ -902,7 +902,7 @@ to the position of point in the selected window."
 
 (defface chinese-wbim-tooltip-face '((((class color)) :inherit tooltip))
   "face to display items"
-  :group 'eim)
+  :group 'chinese-wbim)
 
 (defun chinese-wbim-show-tooltip (text)
   "Show tooltip text near cursor."
@@ -943,13 +943,13 @@ to the position of point in the selected window."
 ;;;_. utils
 ;;;###autoload
 (defun chinese-wbim-create-word-file ()
-  "创建一个能用于 eim 的新文件，按说明填入相应的内容就能生成对应的输入法"
+  "创建一个能用于 chinese-wbim 的新文件，按说明填入相应的内容就能生成对应的输入法"
   (interactive)
   (let ((buffer (generate-new-buffer "chinese-wbim-word")))
     (switch-to-buffer buffer)
     (insert
      "[Comment]\n"
-     "要创建一个新的 eim 输入法文件，最简单的方法是只要在 Table 部分填入码表\n"
+     "要创建一个新的 chinese-wbim 输入法文件，最简单的方法是只要在 Table 部分填入码表\n"
      "就行了。更多的设置如下：\n"
      "# 控制是否进入转换。一般设置成所有词库中的首字母\n"
      "first-char=\n"

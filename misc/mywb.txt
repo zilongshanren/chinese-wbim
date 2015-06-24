@@ -1,6 +1,6 @@
 ;; -*- coding:utf-8 -*-
 [Comment]
-要创建一个新的 eim 输入法文件，最简单的方法是只要在 Table 部分填入码表
+要创建一个新的 chinese-wbim 输入法文件，最简单的方法是只要在 Table 部分填入码表
 就行了。更多的设置如下：
 
 如果需要排序，或者合并相同编码的词条，使用 C-c C-c 或者 M-x e+-build-table。

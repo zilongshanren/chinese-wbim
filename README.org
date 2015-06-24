@@ -21,7 +21,7 @@
 如果有 make 命令，可以用 make 和 make install 命令安装。可以修改
 PREFIX 使文件安装到指定位置。windows 下可以直接设置 ELISPDIR。
 如果没有 make 命令，可以直接复制 EL 和 EXTRAFILES 到 load-path 里的目
-录里，推荐是在 site-lisp/eim 目录中。
+录里，推荐是在 site-lisp/chinese-wbim 目录中。
 
 在 .emacs 加入这几行就行了。五笔输入法要修改 chinese-wbim-wb-history-file 和
 chinese-wbim-wb-user-file 的位置。chinese-wbim-wb-history-file 要修改成能保存的文件名即

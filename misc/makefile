@@ -5,11 +5,11 @@ PREFIX = $$HOME/local
 ###################################
 
 ###################################
-ELISPDIR = $(PREFIX)/share/emacs/site-lisp/eim
-EL = eim.el chinese-wbim-extra.el chinese-wbim-py.el \
+ELISPDIR = $(PREFIX)/share/emacs/site-lisp/chinese-wbim
+EL = chinese-wbim.el chinese-wbim-extra.el chinese-wbim-py.el \
             chinese-wbim-wb-gb2312.el chinese-wbim-wb-gbk.el chinese-wbim-wb.el chinese-wbim-cj.el \
      chinese-wbim-cj-chars.el chinese-wbim-eb.el chinese-wbim-eb-map.el chinese-wbim-table.el
-ELC = eim.elc chinese-wbim-extra.elc chinese-wbim-py.elc \
+ELC = chinese-wbim.elc chinese-wbim-extra.elc chinese-wbim-py.elc \
       chinese-wbim-wb-gb2312.elc chinese-wbim-wb-gbk.elc chinese-wbim-wb.elc chinese-wbim-cj.elc \
       chinese-wbim-eb.elc chinese-wbim-eb-map.elc chinese-wbim-cj-chars.elc chinese-wbim-table.elc
 EXTRAFILES = wb.txt mywb.txt wbpy.txt otherpy.txt py.txt cj.txt \
@@ -31,7 +31,7 @@ uninstall:
 	if [ -d "$(ELISPDIR)" ]; then rm -rf $(ELISPDIR); fi
 
 dist: $(DISTFILES)
-	version=`grep "chinese-wbim-version" eim.el`; \
+	version=`grep "chinese-wbim-version" chinese-wbim.el`; \
 	version=`echo $$version | perl -ne '/[0-9.]+/; print $$&'`; \
 	rm -rf "chinese-wbim-$$version"; \
 	mkdir "chinese-wbim-$$version"; \

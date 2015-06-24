@@ -48,8 +48,8 @@
 (require 'chinese-wbim-table)
 
 (defgroup chinese-wbim-wb nil
-  "eim wubi input method"
-  :group 'eim)
+  "chinese-wbim wubi input method"
+  :group 'chinese-wbim)
   
 (defcustom chinese-wbim-wb-history-file "~/.emacs.d/wbx-history"
   "保存选择的历史记录."

@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w          # -*- coding: utf-8 -*-
-# pyword2tbl.pl --- Create a table for eim py input method
+# pyword2tbl.pl --- Create a table for chinese-wbim py input method
 # Last modify Time-stamp: <Ye Wenbin 2007-07-12 20:48:30>
 # Version: v 0.0 2006/07/17 06:29:58
 # Author: Ye Wenbin <wenbinye@163.com>
@@ -201,7 +201,7 @@ __END__
 
 =head1 NAME
 
-pyword2tbl  ---  Create a table for eim py input method
+pyword2tbl  ---  Create a table for chinese-wbim py input method
 
 =head1 DESCRIPTION
 
