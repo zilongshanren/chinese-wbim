@@ -6,12 +6,12 @@ PREFIX = $$HOME/local
 
 ###################################
 ELISPDIR = $(PREFIX)/share/emacs/site-lisp/eim
-EL = eim.el eim-extra.el eim-py.el \
-            eim-wb-gb2312.el eim-wb-gbk.el eim-wb.el eim-cj.el \
-     eim-cj-chars.el eim-eb.el eim-eb-map.el eim-table.el
-ELC = eim.elc eim-extra.elc eim-py.elc \
-      eim-wb-gb2312.elc eim-wb-gbk.elc eim-wb.elc eim-cj.elc \
-      eim-eb.elc eim-eb-map.elc eim-cj-chars.elc eim-table.elc
+EL = eim.el chinese-wbim-extra.el chinese-wbim-py.el \
+            chinese-wbim-wb-gb2312.el chinese-wbim-wb-gbk.el chinese-wbim-wb.el chinese-wbim-cj.el \
+     chinese-wbim-cj-chars.el chinese-wbim-eb.el chinese-wbim-eb-map.el chinese-wbim-table.el
+ELC = eim.elc chinese-wbim-extra.elc chinese-wbim-py.elc \
+      chinese-wbim-wb-gb2312.elc chinese-wbim-wb-gbk.elc chinese-wbim-wb.elc chinese-wbim-cj.elc \
+      chinese-wbim-eb.elc chinese-wbim-eb-map.elc chinese-wbim-cj-chars.elc chinese-wbim-table.elc
 EXTRAFILES = wb.txt mywb.txt wbpy.txt otherpy.txt py.txt cj.txt \
           cjeb.txt ebpy.txt
 DISTFILES = ChangeLog ChangeLog.1 Readme makefile \
@@ -31,13 +31,13 @@ uninstall:
 	if [ -d "$(ELISPDIR)" ]; then rm -rf $(ELISPDIR); fi
 
 dist: $(DISTFILES)
-	version=`grep "eim-version" eim.el`; \
+	version=`grep "chinese-wbim-version" eim.el`; \
 	version=`echo $$version | perl -ne '/[0-9.]+/; print $$&'`; \
-	rm -rf "eim-$$version"; \
-	mkdir "eim-$$version"; \
-	cp $(DISTFILES) "eim-$$version"; \
-	tar -zcvf "eim-$$version.tar.gz" "eim-$$version"; \
-	rm -rf "eim-$$version"
+	rm -rf "chinese-wbim-$$version"; \
+	mkdir "chinese-wbim-$$version"; \
+	cp $(DISTFILES) "chinese-wbim-$$version"; \
+	tar -zcvf "chinese-wbim-$$version.tar.gz" "chinese-wbim-$$version"; \
+	rm -rf "chinese-wbim-$$version"
 
 %.elc: %.el
 	$(EMACS) -q -batch --no-site-file --eval="(add-to-list 'load-path \".\")" \

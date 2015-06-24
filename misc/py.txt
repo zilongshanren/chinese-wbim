@@ -3,13 +3,13 @@
 要创建一个新的 eim 输入法文件，最简单的方法是只要在 Table 部分填入码表
 就行了。更多的设置如下：
 
-如果需要排序，或者合并相同编码的词条，使用 C-c C-c 或者 M-x eim-build-table。
+如果需要排序，或者合并相同编码的词条，使用 C-c C-c 或者 M-x chinese-wbim-build-table。
 如果有需要，可能还要修改 first-char 和 total-char
 
 [Parameter]
 first-char=zyxwtsrqponmlkjhgfedcbaiv
 total-char=pwmvtkfdcuoishznxyljqgreb-'a
-lib=eim-py.el
+lib=chinese-wbim-py.el
 other-files=otherpy.txt
 
 [Punctuation]

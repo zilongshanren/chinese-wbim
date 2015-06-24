@@ -53,21 +53,21 @@
 (require 'chinese-wbim)
 (require 'chinese-wbim-extra)
 
-(defun eim-table-translate (char)
-  (eim-punc-translate (symbol-value (eim-get-option 'punctuation-list))
+(defun chinese-wbim-table-translate (char)
+  (chinese-wbim-punc-translate (symbol-value (chinese-wbim-get-option 'punctuation-list))
                       char))
 
-(defun eim-table-get-char-code (char)
-  (eim-get-char-code char (eim-get-option 'char-table)))
+(defun chinese-wbim-table-get-char-code (char)
+  (chinese-wbim-get-char-code char (chinese-wbim-get-option 'char-table)))
 
-(defun eim-table-format (key cp tp choice)
-  (if (memq (aref key 0) (eim-get-option 'translate-chars))
+(defun chinese-wbim-table-format (key cp tp choice)
+  (if (memq (aref key 0) (chinese-wbim-get-option 'translate-chars))
       (setq choice
             (mapcar (lambda (c)
                       (if (consp c)
                           (setq c (car c)))
                       (cons c
-                            (eim-table-get-char-code (aref c 0))))
+                            (chinese-wbim-table-get-char-code (aref c 0))))
                     choice)))
   (let ((i 0))
     (format "%s[%d/%d]: %s"
@@ -82,26 +82,26 @@
                         choice) " "))))
 
 ;;;_. 增加补全
-(defun eim-table-add-completion ()
-  (if (= (length eim-current-key) 1)
+(defun chinese-wbim-table-add-completion ()
+  (if (= (length chinese-wbim-current-key) 1)
       t
-    (let ((reg (concat "^" (regexp-quote eim-current-key)))
-          (len (length eim-current-key))
-          (package eim-current-package)
-          (key eim-current-key)
+    (let ((reg (concat "^" (regexp-quote chinese-wbim-current-key)))
+          (len (length chinese-wbim-current-key))
+          (package chinese-wbim-current-package)
+          (key chinese-wbim-current-key)
           line completion)
       (save-excursion
-        (dolist (buf (mapcar 'cdar (eim-buffer-list)))
+        (dolist (buf (mapcar 'cdar (chinese-wbim-buffer-list)))
           (set-buffer buf)
-          (setq eim-current-package package)
+          (setq chinese-wbim-current-package package)
           (beginning-of-line)
-          (if (or (string= (eim-code-at-point) key)
+          (if (or (string= (chinese-wbim-code-at-point) key)
                   (not (looking-at reg)))
               (forward-line 1))
           (while (looking-at reg)
-            (setq line (eim-line-content))
+            (setq line (chinese-wbim-line-content))
             (mapc (lambda (c)
-                    (when (or (>= len (eim-get-option 'all-completion-limit))
+                    (when (or (>= len (chinese-wbim-get-option 'all-completion-limit))
                               (= (length c) 1))
                       (push (cons c (substring
                                      (car line)
@@ -112,28 +112,28 @@
       (setq completion (sort (delete-dups (nreverse completion))
                              (lambda (a b)
                                (< (length (cdr a)) (length (cdr b))))))
-      ;;      (message "%s, %s" eim-current-choices completion)
-      (setcar eim-current-choices (append (car eim-current-choices)
+      ;;      (message "%s, %s" chinese-wbim-current-choices completion)
+      (setcar chinese-wbim-current-choices (append (car chinese-wbim-current-choices)
                                           completion))
-      ;;      (message "%s, %s" eim-current-choices completion))
+      ;;      (message "%s, %s" chinese-wbim-current-choices completion))
       t)))
 
-(defun eim-table-stop-function ()
-  (if (memq (aref eim-current-key 0) (eim-get-option 'translate-chars))
+(defun chinese-wbim-table-stop-function ()
+  (if (memq (aref chinese-wbim-current-key 0) (chinese-wbim-get-option 'translate-chars))
       nil
-    (> (length eim-current-key) (eim-get-option 'max-length))))
+    (> (length chinese-wbim-current-key) (chinese-wbim-get-option 'max-length))))
 
-(defun eim-table-active-function ()
-  (setq eim-add-completion-function 'eim-table-add-completion
-        eim-translate-function 'eim-table-translate
-        eim-format-function 'eim-table-format
-        eim-stop-function 'eim-table-stop-function))
+(defun chinese-wbim-table-active-function ()
+  (setq chinese-wbim-add-completion-function 'chinese-wbim-table-add-completion
+        chinese-wbim-translate-function 'chinese-wbim-table-translate
+        chinese-wbim-format-function 'chinese-wbim-table-format
+        chinese-wbim-stop-function 'chinese-wbim-table-stop-function))
 
 ;; user file and history file
-;;;_. eim-wb-add-user-file
-(defun eim-table-add-user-file (file)
+;;;_. chinese-wbim-wb-add-user-file
+(defun chinese-wbim-table-add-user-file (file)
   (when file
-    (let* ((buflist (eim-buffer-list))
+    (let* ((buflist (chinese-wbim-buffer-list))
            (ufile (expand-file-name file))
            user-buffer)
       (or (file-exists-p ufile)
@@ -146,14 +146,14 @@
                     (setq user-buffer (cdr (assoc "buffer" buf)))))
               buflist)
         (unless user-buffer
-          (setq file (eim-read-file ufile (format eim-buffer-name-format
-                                                  (eim-package-name))))
-          (eim-make-char-table (eim-table-get-user-char (cdar file)) (eim-get-option 'char-table))
+          (setq file (chinese-wbim-read-file ufile (format chinese-wbim-buffer-name-format
+                                                  (chinese-wbim-package-name))))
+          (chinese-wbim-make-char-table (chinese-wbim-table-get-user-char (cdar file)) (chinese-wbim-get-option 'char-table))
           (nconc buflist (list file))
-          (eim-set-option 'table-user-file (cons ufile (cdar file))))))))
+          (chinese-wbim-set-option 'table-user-file (cons ufile (cdar file))))))))
 
-(defun eim-table-get-user-char (buf)
-  "Add user characters. Currently eim-wb may not contain all
+(defun chinese-wbim-table-get-user-char (buf)
+  "Add user characters. Currently chinese-wbim-wb may not contain all
 chinese characters, so if you want more characters to input, you
 can add here."
   (let (line chars)
@@ -161,30 +161,30 @@ can add here."
       (set-buffer buf)
       (goto-char (point-min))
       (while (not (eobp))
-        (setq line (eim-line-content))
+        (setq line (chinese-wbim-line-content))
         (forward-line 1)
         (if (and (= (length (cadr line)) 1)
                  (> (length (car line)) 2))
             (push line chars)))
       chars)))
 
-(defun eim-table-load-history (his-file)
+(defun chinese-wbim-table-load-history (his-file)
   (when (and his-file (file-exists-p his-file))
     (ignore-errors
-      (eim-load-history his-file eim-current-package)
-      (eim-set-option 'record-position t)
-      (eim-set-option 'table-history-file his-file))))
+      (chinese-wbim-load-history his-file chinese-wbim-current-package)
+      (chinese-wbim-set-option 'record-position t)
+      (chinese-wbim-set-option 'table-history-file his-file))))
 
-(defun eim-table-save-history ()
+(defun chinese-wbim-table-save-history ()
   "Save history and user files."
-  (dolist (package eim-package-list)
-    (let* ((eim-current-package (cdr package))
-           (his-file (eim-get-option 'table-history-file))
-           (user-file (eim-get-option 'table-user-file)))
+  (dolist (package chinese-wbim-package-list)
+    (let* ((chinese-wbim-current-package (cdr package))
+           (his-file (chinese-wbim-get-option 'table-history-file))
+           (user-file (chinese-wbim-get-option 'table-user-file)))
       (when (and his-file
                  (file-exists-p his-file)
                  (file-writable-p his-file))
-        (eim-save-history his-file eim-current-package))
+        (chinese-wbim-save-history his-file chinese-wbim-current-package))
       (when (and user-file
                  (file-exists-p (car user-file))
                  (file-writable-p (car user-file)))
@@ -193,41 +193,41 @@ can add here."
             (widen)
             (write-region (point-min) (point-max) (car user-file))))))))
 ;; 按 TAB 显示补全
-(defun eim-table-show-completion ()
+(defun chinese-wbim-table-show-completion ()
   (interactive)
-  (if (eq last-command 'eim-table-show-completion)
+  (if (eq last-command 'chinese-wbim-table-show-completion)
       (ignore-errors
         (with-selected-window (get-buffer-window "*Completions*")
           (scroll-up)))
-    (if (or (= (length eim-current-key) 1) (= (aref eim-current-key 0) ?z))
+    (if (or (= (length chinese-wbim-current-key) 1) (= (aref chinese-wbim-current-key 0) ?z))
         nil
-      (while (not (eim-add-completion)))
-      (let ((choices (car eim-current-choices))
+      (while (not (chinese-wbim-add-completion)))
+      (let ((choices (car chinese-wbim-current-choices))
             completion)
         (dolist (c choices)
           (if (listp c)
               (push (list (format "%-4s %s"
-                                  (concat eim-current-key (cdr c))
+                                  (concat chinese-wbim-current-key (cdr c))
                                   (car c)))
                     completion)))
         (with-output-to-temp-buffer "*Completions*"
           (display-completion-list
-           (all-completions eim-current-key (nreverse completion))
-           eim-current-key)))))
-  (funcall eim-handle-function))
+           (all-completions chinese-wbim-current-key (nreverse completion))
+           chinese-wbim-current-key)))))
+  (funcall chinese-wbim-handle-function))
 
 ;; 增加新词
-(defvar eim-table-minibuffer-map nil)
-(defvar eim-table-save-always nil)
-(when (null eim-table-minibuffer-map)
-  (setq eim-table-minibuffer-map
+(defvar chinese-wbim-table-minibuffer-map nil)
+(defvar chinese-wbim-table-save-always nil)
+(when (null chinese-wbim-table-minibuffer-map)
+  (setq chinese-wbim-table-minibuffer-map
         (let ((map (make-sparse-keymap)))
           (set-keymap-parent map minibuffer-local-map)
-          (define-key map "\C-e" 'eim-table-minibuffer-forward-char)
-          (define-key map "\C-a" 'eim-table-minibuffer-backward-char)
+          (define-key map "\C-e" 'chinese-wbim-table-minibuffer-forward-char)
+          (define-key map "\C-a" 'chinese-wbim-table-minibuffer-backward-char)
           map)))
 ;;;_. 增加新词
-(defun eim-table-minibuffer-forward-char ()
+(defun chinese-wbim-table-minibuffer-forward-char ()
   (interactive)
   (end-of-line)
   (let ((char (save-excursion
@@ -237,7 +237,7 @@ can add here."
       (insert char)
       (incf end))))
 
-(defun eim-table-minibuffer-backward-char ()
+(defun chinese-wbim-table-minibuffer-backward-char ()
   (interactive)
   (beginning-of-line)
   (let ((char (save-excursion
@@ -248,7 +248,7 @@ can add here."
     (when char
       (insert char))))
 
-(defun eim-table-add-word ()
+(defun chinese-wbim-table-add-word ()
   "Create a map for word. The default word is the two characters
 before cursor. You can use C-a and C-e to add character at the
 begining or end of the word.
@@ -263,35 +263,35 @@ begining or end of the word.
          (start (- (point) 2))
          (word (buffer-substring-no-properties
                 start end))
-         (user-file (eim-get-option 'table-user-file))
-         (func (eim-get-option 'table-create-word-function))
+         (user-file (chinese-wbim-get-option 'table-user-file))
+         (func (chinese-wbim-get-option 'table-create-word-function))
          choice code words)
     (when func
       (setq word (read-from-minibuffer "加入新词: " word
-                                       eim-table-minibuffer-map)
+                                       chinese-wbim-table-minibuffer-map)
             code (funcall func word))
-      (setq choice (eim-get code))
+      (setq choice (chinese-wbim-get code))
       (unless (member word (car choice))
         (if (buffer-live-p (cdr user-file))
             (save-excursion
               (set-buffer (cdr user-file))
               (if (string-match "^\\s-$" (buffer-string))
                   (insert "\n" code " " word)
-                (eim-bisearch-word code (point-min) (point-max))
-                (let ((words (eim-line-content)))
+                (chinese-wbim-bisearch-word code (point-min) (point-max))
+                (let ((words (chinese-wbim-line-content)))
                   (goto-char (line-end-position))
                   (if (string= (car words) code)
                       (insert " " word)
                     (insert "\n" code " " word))))
               (setcar choice (append (car choice) (list word)))
-              (if eim-table-save-always
+              (if chinese-wbim-table-save-always
                   (save-restriction
                     (widen)
                     (write-region (point-min) (point-max) (car user-file)))))
           (error "the user buffer is closed!")))))
   (message nil))
 
-(add-hook 'kill-emacs-hook 'eim-table-save-history)
+(add-hook 'kill-emacs-hook 'chinese-wbim-table-save-history)
 
 (provide 'chinese-wbim-table)
 ;;; chinese-wbim-table.el ends here

@@ -33,7 +33,7 @@
 ;;; Commentary:
 
 ;;; Code:
-(eim-make-char-table '(
+(chinese-wbim-make-char-table '(
 ("a,ri" "嫒")
 ("a,sd" "媪")
 ("abps" "蔼")
@@ -6410,4 +6410,4 @@
 ("zzs" "钊")
 ("zztn" "铮")
 ("zzy," "镞")
-) eim-eb-char-table)
+) chinese-wbim-eb-char-table)

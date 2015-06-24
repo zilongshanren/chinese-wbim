@@ -38,44 +38,44 @@
   (require 'cl))
 (require 'chinese-wbim)
 
-(defvar eim-punc-escape-list
+(defvar chinese-wbim-punc-escape-list
   (number-sequence ?0 ?9)
   "Punctuation will not insert after this characters.
 If you don't like this funciton, set the variable to nil")
-(defvar eim-insert-ascii-char (cons ?\; "；")
-  "*Key used for `eim-insert-ascii'.")
+(defvar chinese-wbim-insert-ascii-char (cons ?\; "；")
+  "*Key used for `chinese-wbim-insert-ascii'.")
 
-(defvar eim-punc-translate-p t
+(defvar chinese-wbim-punc-translate-p t
   "*Non-nil means will translate punctuation.")
 
 ;;;_. handle punctuation
-(defun eim-read-punctuation (package)
-  (let ((eim-current-package package)
+(defun chinese-wbim-read-punctuation (package)
+  (let ((chinese-wbim-current-package package)
 	buf punc-list punc)
-    (setq buf (cdr (assoc "buffer" (car (eim-buffer-list)))))
+    (setq buf (cdr (assoc "buffer" (car (chinese-wbim-buffer-list)))))
     (save-excursion
       (set-buffer buf)
       (save-restriction
         (widen)
-        (let ((region (eim-section-region "Punctuation")))
+        (let ((region (chinese-wbim-section-region "Punctuation")))
           (goto-char (car region))
           (while (< (point) (cdr region))
-            (setq punc (eim-line-content))
+            (setq punc (chinese-wbim-line-content))
             (if (> (length punc) 3)
                 (error "标点不支持多个转换！"))
             (add-to-list 'punc-list punc)
             (forward-line 1)))))
     punc-list))
 
-(defun eim-punc-translate (punc-list char)
-  (if eim-punc-translate-p
+(defun chinese-wbim-punc-translate (punc-list char)
+  (if chinese-wbim-punc-translate-p
       (cond ((< char ? ) "")
-            ((and eim-insert-ascii-char
-                  (= char (car eim-insert-ascii-char)))
+            ((and chinese-wbim-insert-ascii-char
+                  (= char (car chinese-wbim-insert-ascii-char)))
              (char-to-string char))
             (t (let ((str (char-to-string char))
                      punc)
-                 (if (and (not (member (char-before) eim-punc-escape-list))
+                 (if (and (not (member (char-before) chinese-wbim-punc-escape-list))
                           (setq punc (cdr (assoc str punc-list))))
                      (progn
                        (if (= char (char-before))
@@ -89,39 +89,39 @@ If you don't like this funciton, set the variable to nil")
                    str))))
     (char-to-string char)))
 
-(defun eim-punc-translate-toggle (arg)
+(defun chinese-wbim-punc-translate-toggle (arg)
   (interactive "P")
-  (setq eim-punc-translate-p
+  (setq chinese-wbim-punc-translate-p
         (if (null arg)
-            (not eim-punc-translate-p)
+            (not chinese-wbim-punc-translate-p)
           (> (prefix-numeric-value arg) 0))))
 
 ;;;_. 一个快速插入英文的命令。按自己的需要绑定到 ";"
-(defun eim-insert-ascii ()
+(defun chinese-wbim-insert-ascii ()
   (interactive)
   (if current-input-method
       (let (c)
         (message (format "自定义输入(直接空格%s, 回车%c): "
-                         (cdr eim-insert-ascii-char)
-                         (car eim-insert-ascii-char)))
+                         (cdr chinese-wbim-insert-ascii-char)
+                         (car chinese-wbim-insert-ascii-char)))
         (setq c (read-event))
-        (cond ((= c ? ) (insert (cdr eim-insert-ascii-char)))
-              ((= c ?\r) (insert-char (car eim-insert-ascii-char) 1))
+        (cond ((= c ? ) (insert (cdr chinese-wbim-insert-ascii-char)))
+              ((= c ?\r) (insert-char (car chinese-wbim-insert-ascii-char) 1))
               (t
                (setq unread-command-events (list last-input-event))
                (insert (read-from-minibuffer "自定义输入: ")))))
     (call-interactively 'self-insert-command)))
 
 ;;;_. load and save history
-(defun eim-load-history (history-file package)
-  (let* ((eim-current-package package)
-         (history (eim-history))
+(defun chinese-wbim-load-history (history-file package)
+  (let* ((chinese-wbim-current-package package)
+         (history (chinese-wbim-history))
          item)
     (when (file-exists-p history-file)
       (with-current-buffer (find-file-noselect history-file)
         (goto-char (point-min))
         (while (not (eobp))
-          (if (and (setq item (eim-line-content))
+          (if (and (setq item (chinese-wbim-line-content))
                    (= (length item) 2))
               (puthash (car item)
                        `(nil ("pos" . ,(string-to-number (cadr item))))
@@ -129,62 +129,62 @@ If you don't like this funciton, set the variable to nil")
           (forward-line 1))
         (kill-buffer (current-buffer))))))
 
-(defun eim-save-history (history-file package)
+(defun chinese-wbim-save-history (history-file package)
   (interactive)
-  (let* ((eim-current-package package)
-         (history (eim-history)))
+  (let* ((chinese-wbim-current-package package)
+         (history (chinese-wbim-history)))
     (with-temp-buffer
       (erase-buffer)
       (let (pos)
         (maphash (lambda (key val)
-                   (unless (or (eim-string-emptyp key)
+                   (unless (or (chinese-wbim-string-emptyp key)
                                (= (setq pos (cdr (assoc "pos" (cdr val)))) 1))
                      (insert key " " (number-to-string pos) "\n")))
                  history))
       (write-file history-file))))
 
 ;;;_. 增加两个快速选择的按键
-(defun eim-quick-select-1 ()
+(defun chinese-wbim-quick-select-1 ()
   "如果没有可选项，插入数字，否则选择对应的词条."
   (interactive)
-  (if (car eim-current-choices)
-      (let ((index (eim-page-start))
-            (end (eim-page-end)))
+  (if (car chinese-wbim-current-choices)
+      (let ((index (chinese-wbim-page-start))
+            (end (chinese-wbim-page-end)))
         (if (>= index end)
-            (eim-append-string (eim-translate last-command-event))
-          (eim-remember-select (1+ index))
-          (setq eim-current-str (eim-choice (nth index (car eim-current-choices))))))
-    (eim-append-string (eim-translate last-command-event)))
-  (eim-terminate-translation))
+            (chinese-wbim-append-string (chinese-wbim-translate last-command-event))
+          (chinese-wbim-remember-select (1+ index))
+          (setq chinese-wbim-current-str (chinese-wbim-choice (nth index (car chinese-wbim-current-choices))))))
+    (chinese-wbim-append-string (chinese-wbim-translate last-command-event)))
+  (chinese-wbim-terminate-translation))
 
-(defun eim-quick-select-2 ()
+(defun chinese-wbim-quick-select-2 ()
   "如果没有可选项，插入数字，否则选择对应的词条."
   (interactive)
-  (if (car eim-current-choices)
-      (let ((index (1+ (eim-page-start)))
-            (end (eim-page-end)))
+  (if (car chinese-wbim-current-choices)
+      (let ((index (1+ (chinese-wbim-page-start)))
+            (end (chinese-wbim-page-end)))
         (if (>= index end)
-            (eim-append-string (eim-translate last-command-event))
-          (eim-remember-select (1+ index))
-          (setq eim-current-str (eim-choice (nth index (car eim-current-choices))))))
-    (eim-append-string (eim-translate last-command-event)))
-  (eim-terminate-translation))
+            (chinese-wbim-append-string (chinese-wbim-translate last-command-event))
+          (chinese-wbim-remember-select (1+ index))
+          (setq chinese-wbim-current-str (chinese-wbim-choice (nth index (car chinese-wbim-current-choices))))))
+    (chinese-wbim-append-string (chinese-wbim-translate last-command-event)))
+  (chinese-wbim-terminate-translation))
 
-(defun eim-describe-char (pos package)
+(defun chinese-wbim-describe-char (pos package)
   (interactive
    (list (point)
-         (if (eq input-method-function 'eim-input-method)
-             (eim-package-name)
-           (let (eim-current-package)
-             (setq eim-current-package
-                   (if (= (length eim-package-list) 1)
-                       (cdar eim-package-list)
+         (if (eq input-method-function 'chinese-wbim-input-method)
+             (chinese-wbim-package-name)
+           (let (chinese-wbim-current-package)
+             (setq chinese-wbim-current-package
+                   (if (= (length chinese-wbim-package-list) 1)
+                       (cdar chinese-wbim-package-list)
                      (assoc
                       (completing-read "In package: "
-                                       eim-package-list nil t
-                                       (caar eim-package-list))
-                      eim-package-list)))
-             (eim-package-name)))))
+                                       chinese-wbim-package-list nil t
+                                       (caar chinese-wbim-package-list))
+                      chinese-wbim-package-list)))
+             (chinese-wbim-package-name)))))
   (if (>= pos (point-max))
       (error "No character follows specified position"))
   (let ((char (char-after pos))
@@ -198,14 +198,14 @@ If you don't like this funciton, set the variable to nil")
         (message "Can't find char code for %c" char)))))
 
 ;;;_. char table
-(defun eim-make-char-table (chars table)
-  "Set CHARS of `eim-char-database' in TABLE."
+(defun chinese-wbim-make-char-table (chars table)
+  "Set CHARS of `chinese-wbim-char-database' in TABLE."
   (dolist (char chars)
     (let ((code (car char)))
       (dolist (c (cdr char))
         (set (intern c table) code)))))
 
-(defsubst eim-get-char-code (char table)
+(defsubst chinese-wbim-get-char-code (char table)
   "Get the code of the character CHAR in TABLE."
   (symbol-value (intern-soft (char-to-string char) table)))
 

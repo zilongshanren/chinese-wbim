@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# mergepy.pl --- Merge two eim-py table
+# mergepy.pl --- Merge two chinese-wbim-py table
 # Last modify Time-stamp: <Ye Wenbin 2007-07-12 20:45:38>
 # Version: v 0.0 2007/07/12 11:39:17
 # Author: Ye Wenbin <wenbinye@163.com>
@@ -81,7 +81,7 @@ __END__
 
 =head1 NAME
 
-mergepy.pl - A utility to merge two eim-py table file
+mergepy.pl - A utility to merge two chinese-wbim-py table file
 
 =head1 SYNOPSIS
 
@@ -91,5 +91,5 @@ Add all items in added-table to the prime-table. The duplicate items
 will ignore and new items in added-table will append to prime-table
 with the same order.
 
-You may use this utility to update or enlarge your eim-py table file
+You may use this utility to update or enlarge your chinese-wbim-py table file
 without lose your own table.

@@ -35,7 +35,7 @@
 ;; 
 
 ;; Put this file into your load-path and the following into your ~/.emacs:
-;;   (require 'eim-eb)
+;;   (require 'chinese-wbim-eb)
 
 ;;; Code:
 
@@ -44,53 +44,53 @@
 
 (require 'chinese-wbim-table)
 
-(defvar eim-eb-user-file nil)
-(defvar eim-eb-history-file nil)
-(defvar eim-eb-package nil)
-(defvar eim-eb-punctuation-list nil)
-(defvar eim-eb-load-hook nil)
-(defvar eim-eb-initialized nil)
-(defvar eim-eb-char-table (make-vector 1511 0))
+(defvar chinese-wbim-eb-user-file nil)
+(defvar chinese-wbim-eb-history-file nil)
+(defvar chinese-wbim-eb-package nil)
+(defvar chinese-wbim-eb-punctuation-list nil)
+(defvar chinese-wbim-eb-load-hook nil)
+(defvar chinese-wbim-eb-initialized nil)
+(defvar chinese-wbim-eb-char-table (make-vector 1511 0))
 
-(defun eim-eb-create-word (word)
+(defun chinese-wbim-eb-create-word (word)
   "Insert word to database and write into user file."
   (let ((len (length word))
         code)
     (setq code
      (cond
       ((= len 2)
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 2)
-               (substring (eim-table-get-char-code (aref word 1)) 0 2)))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 2)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 2)))
       ((= len 3)
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 2)
-               (substring (eim-table-get-char-code (aref word 1)) 0 1)
-               (substring (eim-table-get-char-code (aref word 2)) 0 1)))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 2)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 2)) 0 1)))
       (t
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 1)
-               (substring (eim-table-get-char-code (aref word 1)) 0 1)
-               (substring (eim-table-get-char-code (aref word 2)) 0 1)
-               (substring (eim-table-get-char-code (aref word (1- (length word)))) 0 1)))))))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 2)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word (1- (length word)))) 0 1)))))))
 
-(unless eim-eb-initialized
-  (setq eim-eb-package eim-current-package)
-  (setq eim-eb-punctuation-list
-        (eim-read-punctuation eim-eb-package))
-  (run-hooks 'eim-eb-load-hook)
+(unless chinese-wbim-eb-initialized
+  (setq chinese-wbim-eb-package chinese-wbim-current-package)
+  (setq chinese-wbim-eb-punctuation-list
+        (chinese-wbim-read-punctuation chinese-wbim-eb-package))
+  (run-hooks 'chinese-wbim-eb-load-hook)
   (let ((path (file-name-directory load-file-name)))
-    (load (concat path "eim-eb-map")))
-  (let ((map (eim-mode-map)))
-    (define-key map "\t" 'eim-table-show-completion))
+    (load (concat path "chinese-wbim-eb-map")))
+  (let ((map (chinese-wbim-mode-map)))
+    (define-key map "\t" 'chinese-wbim-table-show-completion))
   
-  (eim-table-add-user-file eim-eb-user-file)
-  (eim-table-load-history eim-eb-history-file)
-  (eim-set-option 'table-create-word-function 'eim-eb-create-word)
-  (eim-set-option 'char-table eim-eb-char-table)
-  (eim-set-option 'punctuation-list 'eim-eb-punctuation-list)
-  (eim-set-option 'max-length 4)
-  (eim-set-option 'translate-chars '(?\[))
-  (eim-set-option 'all-completion-limit 3)
-  (eim-set-active-function 'eim-table-active-function)
-  (setq eim-eb-initialized t))
+  (chinese-wbim-table-add-user-file chinese-wbim-eb-user-file)
+  (chinese-wbim-table-load-history chinese-wbim-eb-history-file)
+  (chinese-wbim-set-option 'table-create-word-function 'chinese-wbim-eb-create-word)
+  (chinese-wbim-set-option 'char-table chinese-wbim-eb-char-table)
+  (chinese-wbim-set-option 'punctuation-list 'chinese-wbim-eb-punctuation-list)
+  (chinese-wbim-set-option 'max-length 4)
+  (chinese-wbim-set-option 'translate-chars '(?\[))
+  (chinese-wbim-set-option 'all-completion-limit 3)
+  (chinese-wbim-set-active-function 'chinese-wbim-table-active-function)
+  (setq chinese-wbim-eb-initialized t))
 
 (provide 'chinese-wbim-eb)
 ;;; chinese-wbim-eb.el ends here

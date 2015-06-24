@@ -36,7 +36,7 @@
 ;; Put this file into your load-path and the following into your ~/.emacs:
 
 ;; (register-input-method
-;;  "chinese-wbim" "euc-cn" 'eim-use-package
+;;  "chinese-wbim" "euc-cn" 'chinese-wbim-use-package
 ;;  "五笔" "汉字五笔输入法" "wb.txt")
 
 ;;; Code:
@@ -45,7 +45,7 @@
   (require 'cl))
 (require 'help-mode)
 
-(defvar eim-version "2.4")
+(defvar chinese-wbim-version "2.4")
 
 ;;;_. emacs21 compatible
 (when (not (fboundp 'number-sequence))
@@ -70,15 +70,15 @@ one is kept."
 (defgroup eim nil
   "eim: emacs input method"
   :group 'leim)
-(defvar eim-page-length 7 "每页显示的词条数目")
+(defvar chinese-wbim-page-length 7 "每页显示的词条数目")
 
-(defface eim-string-face '((t (:underline t)))
+(defface chinese-wbim-string-face '((t (:underline t)))
   "Face to show current string"
   :group 'eim)
 
 ;;;_. variable declare
-(defvar eim-package-list nil "所有正在使用的输入法")
-(defvar eim-current-package (make-vector 5 nil)
+(defvar chinese-wbim-package-list nil "所有正在使用的输入法")
+(defvar chinese-wbim-current-package (make-vector 5 nil)
   "当前使用的输入法，一个 vector，有五个部分: package-name,
 buffer-list,history, keymap, active-function.
 
@@ -88,13 +88,13 @@ buffer         对应的 buffer
 param          Parameter 部分的参数
 file           对应的文件名
 ")
-(defvar eim-first-char (number-sequence ?a ?z) "Table 中所有首字母列表")
-(defvar eim-total-char (number-sequence ?a ?z) "所有可能的字符")
-(defvar eim-do-completion t "是否读入可能的补全")
+(defvar chinese-wbim-first-char (number-sequence ?a ?z) "Table 中所有首字母列表")
+(defvar chinese-wbim-total-char (number-sequence ?a ?z) "所有可能的字符")
+(defvar chinese-wbim-do-completion t "是否读入可能的补全")
 
-(defvar eim-current-key "" "已经输入的代码")
-(defvar eim-current-str "" "当前选择的词条")
-(defvar eim-current-choices nil "所有可选的词条。
+(defvar chinese-wbim-current-key "" "已经输入的代码")
+(defvar chinese-wbim-current-str "" "当前选择的词条")
+(defvar chinese-wbim-current-choices nil "所有可选的词条。
 
 这个 list 的 CAR 是可选的词条，一般是一个字符串列表，但是也可以含有
 list。但是这个 list 的第一个元素必须是将要插入的字符串。
@@ -102,150 +102,150 @@ list。但是这个 list 的第一个元素必须是将要插入的字符串。
 CDR 部分是一个 Association list。通常含有这样的内容：
 ---------------------------
 pos         上次选择的位置
-completion  下一个可能的字母（如果 eim-do-completion 为 t）
+completion  下一个可能的字母（如果 chinese-wbim-do-completion 为 t）
 ")
-(defvar eim-current-pos nil "当前选择的词条在 eim-current-choices 中的位置")
-(defvar eim-guidance-str "" "显示可选词条的字符串")
-(defvar eim-translating nil "记录是否在转换状态")
-(defvar eim-overlay nil "显示当前选择词条的 overlay")
-(defvar eim-guidance-frame nil)
-(defvar eim-guidance-buf nil)
+(defvar chinese-wbim-current-pos nil "当前选择的词条在 chinese-wbim-current-choices 中的位置")
+(defvar chinese-wbim-guidance-str "" "显示可选词条的字符串")
+(defvar chinese-wbim-translating nil "记录是否在转换状态")
+(defvar chinese-wbim-overlay nil "显示当前选择词条的 overlay")
+(defvar chinese-wbim-guidance-frame nil)
+(defvar chinese-wbim-guidance-buf nil)
 
-(defvar eim-load-hook nil)
-(defvar eim-active-hook nil)
+(defvar chinese-wbim-load-hook nil)
+(defvar chinese-wbim-active-hook nil)
 
-(defvar eim-stop-function nil)
-(defvar eim-translate-function nil)
-(defvar eim-add-completion-function nil)
-(defvar eim-format-function 'eim-format)
-(defvar eim-handle-function 'eim-handle-string)
+(defvar chinese-wbim-stop-function nil)
+(defvar chinese-wbim-translate-function nil)
+(defvar chinese-wbim-add-completion-function nil)
+(defvar chinese-wbim-format-function 'chinese-wbim-format)
+(defvar chinese-wbim-handle-function 'chinese-wbim-handle-string)
 
-(defvar eim-use-tooltip (not (or noninteractive
+(defvar chinese-wbim-use-tooltip (not (or noninteractive
                                  emacs-basic-display
                                  (not (display-graphic-p))
                                  (not (fboundp 'x-show-tip)))))
-(defvar eim-tooltip-timeout 15)
+(defvar chinese-wbim-tooltip-timeout 15)
 
-(defvar eim-buffer-name-format " *%s*"
+(defvar chinese-wbim-buffer-name-format " *%s*"
   "buffer 的名字格式，%s 对应 package name")
 
-(defvar eim-mode-map
+(defvar chinese-wbim-mode-map
   (let ((map (make-sparse-keymap))
         (i ?\ ))
     (while (< i 127)
-      (define-key map (char-to-string i) 'eim-self-insert-command)
+      (define-key map (char-to-string i) 'chinese-wbim-self-insert-command)
       (setq i (1+ i)))
     (setq i 128)
     (while (< i 256)
-      (define-key map (vector i) 'eim-self-insert-command)
+      (define-key map (vector i) 'chinese-wbim-self-insert-command)
       (setq i (1+ i)))
     (dolist (i (number-sequence ?1 ?9))
-      (define-key map (char-to-string i) 'eim-number-select))
-    (define-key map " " 'eim-select-current)
-    (define-key map [backspace] 'eim-delete-last-char)
-    (define-key map [delete] 'eim-delete-last-char)
-    (define-key map "\177" 'eim-delete-last-char)
-    (define-key map "\C-n" 'eim-next-page)
-    (define-key map "\C-p" 'eim-previous-page)
-    (define-key map "\C-m" 'eim-quit-no-clear)
-    (define-key map "\C-c" 'eim-quit-clear)
-    (define-key map "\C-g" 'eim-quit-clear)
+      (define-key map (char-to-string i) 'chinese-wbim-number-select))
+    (define-key map " " 'chinese-wbim-select-current)
+    (define-key map [backspace] 'chinese-wbim-delete-last-char)
+    (define-key map [delete] 'chinese-wbim-delete-last-char)
+    (define-key map "\177" 'chinese-wbim-delete-last-char)
+    (define-key map "\C-n" 'chinese-wbim-next-page)
+    (define-key map "\C-p" 'chinese-wbim-previous-page)
+    (define-key map "\C-m" 'chinese-wbim-quit-no-clear)
+    (define-key map "\C-c" 'chinese-wbim-quit-clear)
+    (define-key map "\C-g" 'chinese-wbim-quit-clear)
     map)
   "Keymap")
 
-(defvar eim-local-variable-list
-  '(eim-current-package
+(defvar chinese-wbim-local-variable-list
+  '(chinese-wbim-current-package
 
-    eim-page-length
-    eim-first-char
-    eim-total-char
-    eim-do-completion
+    chinese-wbim-page-length
+    chinese-wbim-first-char
+    chinese-wbim-total-char
+    chinese-wbim-do-completion
 
-    eim-current-key
-    eim-current-str
-    eim-current-choices
-    eim-current-pos
-    eim-guidance-str
-    eim-translating
-    eim-overlay
-    eim-guidance-frame
-    eim-guidance-buf
+    chinese-wbim-current-key
+    chinese-wbim-current-str
+    chinese-wbim-current-choices
+    chinese-wbim-current-pos
+    chinese-wbim-guidance-str
+    chinese-wbim-translating
+    chinese-wbim-overlay
+    chinese-wbim-guidance-frame
+    chinese-wbim-guidance-buf
 
-    eim-load-hook
-    eim-active-hook
+    chinese-wbim-load-hook
+    chinese-wbim-active-hook
 
-    eim-translate-function
-    eim-format-function
-    eim-handle-function
-    eim-add-completion-function
-    eim-stop-function
+    chinese-wbim-translate-function
+    chinese-wbim-format-function
+    chinese-wbim-handle-function
+    chinese-wbim-add-completion-function
+    chinese-wbim-stop-function
 
     input-method-function
     inactivate-current-input-method-function
     describe-current-input-method-function)
   "A list of buffer local variable")
 
-(dolist (var eim-local-variable-list)
+(dolist (var chinese-wbim-local-variable-list)
   (make-variable-buffer-local var)
   (put var 'permanent-local t))
 
 ;;;_ , package contents
-(defsubst eim-package-name ()
-  (aref eim-current-package 0))
+(defsubst chinese-wbim-package-name ()
+  (aref chinese-wbim-current-package 0))
 
-(defsubst eim-buffer-list ()
-  (aref eim-current-package 1))
+(defsubst chinese-wbim-buffer-list ()
+  (aref chinese-wbim-current-package 1))
 
-(defsubst eim-history ()
+(defsubst chinese-wbim-history ()
   "保存输入过的词的选择，另一方面加快搜索。另外在这里来处理标点。
 这个散列中的每个元素都有这样的格式：
   ((list WORDS) other-properties)
 OTHER-PROPERTIES 是一些其它的属性，比如，上次的位置，用来输入标点等。"
-  (aref eim-current-package 2))
+  (aref chinese-wbim-current-package 2))
 
-(defsubst eim-mode-map ()
-  (aref eim-current-package 3))
+(defsubst chinese-wbim-mode-map ()
+  (aref chinese-wbim-current-package 3))
 
-(defsubst eim-options ()
-  (aref eim-current-package 4))
+(defsubst chinese-wbim-options ()
+  (aref chinese-wbim-current-package 4))
 
-(defsubst eim-active-function ()
-  (aref eim-current-package 5))
+(defsubst chinese-wbim-active-function ()
+  (aref chinese-wbim-current-package 5))
 
-(defsubst eim-set-package-name (name)
-  (aset eim-current-package 0 name))
+(defsubst chinese-wbim-set-package-name (name)
+  (aset chinese-wbim-current-package 0 name))
 
-(defsubst eim-set-buffer-list (list)
-  (aset eim-current-package 1 list))
+(defsubst chinese-wbim-set-buffer-list (list)
+  (aset chinese-wbim-current-package 1 list))
 
-(defsubst eim-set-history (history)
-  (aset eim-current-package 2 history))
+(defsubst chinese-wbim-set-history (history)
+  (aset chinese-wbim-current-package 2 history))
 
-(defsubst eim-set-mode-map (map)
-  (aset eim-current-package 3 map))
+(defsubst chinese-wbim-set-mode-map (map)
+  (aset chinese-wbim-current-package 3 map))
 
-(defsubst eim-set-options (options)
-  (aset eim-current-package 4 options))
+(defsubst chinese-wbim-set-options (options)
+  (aset chinese-wbim-current-package 4 options))
 
-(defsubst eim-set-active-function (func)
-  (aset eim-current-package 5 func))
+(defsubst chinese-wbim-set-active-function (func)
+  (aset chinese-wbim-current-package 5 func))
 
-(defun eim-get-option (option)
-  (cdr (assoc option (eim-options))))
-(defun eim-set-option (option flag)
-  (let ((options (eim-options))
+(defun chinese-wbim-get-option (option)
+  (cdr (assoc option (chinese-wbim-options))))
+(defun chinese-wbim-set-option (option flag)
+  (let ((options (chinese-wbim-options))
         opt)
     (if (setq opt (assoc option options))
         (setcdr opt flag)
       (push (cons option flag) options)
-      (eim-set-options options))))
+      (chinese-wbim-set-options options))))
 
 ;;;_. read file functions
-(defun eim-load-file (file)
-  (let ((bufname (format eim-buffer-name-format (eim-package-name)))
+(defun chinese-wbim-load-file (file)
+  (let ((bufname (format chinese-wbim-buffer-name-format (chinese-wbim-package-name)))
         buflist buf param files)
     (save-excursion
-      (setq buf (eim-read-file file bufname t))
+      (setq buf (chinese-wbim-read-file file bufname t))
       (setq param (cdr (assoc "param" buf)))
       (setq buflist (append buflist (list buf)))
       (when (setq files (assoc "other-files" param))
@@ -254,23 +254,23 @@ OTHER-PROPERTIES 是一些其它的属性，比如，上次的位置，用来输
           (if (file-exists-p (expand-file-name f))
               (setq f (expand-file-name f))
             (setq f (locate-file f load-path)))
-          (setq buflist (append buflist (list (eim-read-file f bufname))))))
+          (setq buflist (append buflist (list (chinese-wbim-read-file f bufname))))))
       buflist)))
 
-(defun eim-read-file (file name &optional read-param)
+(defun chinese-wbim-read-file (file name &optional read-param)
   (let (param region)
     (save-excursion
       (set-buffer (generate-new-buffer name))
       (insert-file-contents file)
       (if read-param
-          (setq param (eim-read-parameters)))
-      (setq region (eim-section-region "Table"))
+          (setq param (chinese-wbim-read-parameters)))
+      (setq region (chinese-wbim-section-region "Table"))
       (narrow-to-region (car region) (cdr region))
       `(("buffer" . ,(current-buffer))
         ("param" . ,param)
         ("file" . ,file)))))
 
-(defun eim-section-region (sec)
+(defun chinese-wbim-section-region (sec)
   "得到一个部分的起点和终点位置，忽略最后的空行"
   (let ((reg (concat "^\\[" sec "\\]\n")))
     (save-excursion
@@ -285,24 +285,24 @@ OTHER-PROPERTIES 是一些其它的属性，比如，上次的位置，用来输
                       (re-search-backward "[^  \t\n]" nil t)
                       (1+ (point)))))))
 
-(defun eim-read-parameters ()
+(defun chinese-wbim-read-parameters ()
   "得到 [Parameter] 部分的参数，以 assoc list 的形式返回"
-  (let* ((r (eim-section-region "Parameter"))
+  (let* ((r (chinese-wbim-section-region "Parameter"))
          param pair)
     (goto-char (car r))
     (while (< (point) (cdr r))
-      (when (setq pair (eim-line-content "=" t))
+      (when (setq pair (chinese-wbim-line-content "=" t))
         (add-to-list 'param pair))
       (forward-line 1))
     param))
 
 ;;;_. common functions
 
-(defsubst eim-delete-region ()
+(defsubst chinese-wbim-delete-region ()
   "Delete the text in the current translation region of E+."
-  (if (overlay-start eim-overlay)
-      (delete-region (overlay-start eim-overlay)
-                     (overlay-end eim-overlay))))
+  (if (overlay-start chinese-wbim-overlay)
+      (delete-region (overlay-start chinese-wbim-overlay)
+                     (overlay-end chinese-wbim-overlay))))
 
 ;;; steal from emms-compat.el. Is this a good idea?
 (when (not (fboundp 'emms-delete-if))
@@ -325,61 +325,61 @@ whenever possible."
         (setq next (cdr ptr))))
     seq))
 
-(defun eim-subseq (list from &optional to)
+(defun chinese-wbim-subseq (list from &optional to)
   (if (null to) (nthcdr from list)
     (butlast (nthcdr from list) (- (length list) to))))
 
-(defun eim-mod (x y)
+(defun chinese-wbim-mod (x y)
   "like `mod', but when result is 0, return Y"
   (let ((base (mod x y)))
     (if (= base 0)
         y
       base)))
 
-(defun eim-string-emptyp (str)
+(defun chinese-wbim-string-emptyp (str)
   (not (string< "" str)))
 
-(defun eim-line-content (&optional seperaters omit-nulls)
+(defun chinese-wbim-line-content (&optional seperaters omit-nulls)
   "用 SEPERATERS 分解当前行，所有参数传递给 split-string 函数"
   (let ((items   (split-string
                   (buffer-substring-no-properties
                    (line-beginning-position)
                    (line-end-position)) seperaters)))
     (if omit-nulls
-        (emms-delete-if 'eim-string-emptyp items)
+        (emms-delete-if 'chinese-wbim-string-emptyp items)
       items)))
 
-(defsubst eim-delete-line ()
+(defsubst chinese-wbim-delete-line ()
   (delete-region (line-beginning-position) (min (+ (line-end-position) 1)
                                                 (point-max))))
 
-(defsubst eim-append-string (str)
-  "append STR to eim-current-str"
-  (setq eim-current-str (concat eim-current-str str)))
+(defsubst chinese-wbim-append-string (str)
+  "append STR to chinese-wbim-current-str"
+  (setq chinese-wbim-current-str (concat chinese-wbim-current-str str)))
 
 ;;;_. code search
-(defun eim-get (code)
-  (when (and (stringp code) (not (eim-string-emptyp code)))
-    (let ((history (gethash code (eim-history)))
+(defun chinese-wbim-get (code)
+  (when (and (stringp code) (not (chinese-wbim-string-emptyp code)))
+    (let ((history (gethash code (chinese-wbim-history)))
           pos words completions)
       (if (and (car history) (assoc "completions" (cdr history)))
           history
-        (dolist (buf (eim-buffer-list))
+        (dolist (buf (chinese-wbim-buffer-list))
           (with-current-buffer (cdr (assoc "buffer" buf))
             (setq words (append words
                                 (cdr
-                                 (eim-bisearch-word code
+                                 (chinese-wbim-bisearch-word code
                                                     (point-min)
                                                     (point-max)))))
-            (if eim-do-completion
-                (setq completions (eim-completions code completions)))))
+            (if chinese-wbim-do-completion
+                (setq completions (chinese-wbim-completions code completions)))))
         (setq words (delete-dups words))
         (puthash code (list words
                             (cons "pos" (or (cdr (assoc "pos" (cdr history))) 1))
                             (cons "completions" completions))
-                 (eim-history))))))
+                 (chinese-wbim-history))))))
 
-(defun eim-completions (code completions)
+(defun chinese-wbim-completions (code completions)
   (let ((maxln 200)
         (cnt 0)
         (len (length code))
@@ -395,21 +395,21 @@ whenever possible."
         (setq cnt (1+ cnt)))
       completions)))
 
-(defun eim-bisearch-word (code start end)
+(defun chinese-wbim-bisearch-word (code start end)
   (let ((mid (/ (+ start end) 2))
         ccode)
     (goto-char mid)
     (beginning-of-line)
-    (setq ccode (eim-code-at-point))
+    (setq ccode (chinese-wbim-code-at-point))
     ;;    (message "%d, %d, %d: %s" start mid end ccode)
     (if (string= ccode code)
-        (eim-line-content)
+        (chinese-wbim-line-content)
       (if (> mid start)
           (if (string< ccode code)
-              (eim-bisearch-word code mid end)
-            (eim-bisearch-word code start mid))))))
+              (chinese-wbim-bisearch-word code mid end)
+            (chinese-wbim-bisearch-word code start mid))))))
 
-(defun eim-code-at-point ()
+(defun chinese-wbim-code-at-point ()
   "Before calling this function, be sure that the point is at the
 beginning of line"
   (save-excursion
@@ -418,11 +418,11 @@ beginning of line"
       (error "文件类型错误！%s 的第 %d 行没有词条！" (buffer-name) (line-number-at-pos)))))
 
 ;;;_. interface
-(defun eim-check-buffers ()
+(defun chinese-wbim-check-buffers ()
   "检查所有的 buffer 是否还存在，如果不存在，重新打开文件，如果文件不
 存在，从 buffer-list 中删除这个 buffer"
-  (let ((buflist (eim-buffer-list))
-        (bufname (eim-package-name))
+  (let ((buflist (chinese-wbim-buffer-list))
+        (bufname (chinese-wbim-package-name))
         buffer file)
     (dolist (buf buflist)
       (unless (buffer-live-p (cdr (setq buffer (assoc "buffer" buf))))
@@ -434,78 +434,78 @@ beginning of line"
           (setq buflist (remove buf buflist)))))
     t))
 
-(defun eim-install-variable ()
-  (let ((param (cdr (assoc "param" (car (eim-buffer-list))))))
+(defun chinese-wbim-install-variable ()
+  (let ((param (cdr (assoc "param" (car (chinese-wbim-buffer-list))))))
     (mapc (lambda (p)
-            (let ((sym (intern-soft (concat "eim-" (car p)))))
+            (let ((sym (intern-soft (concat "chinese-wbim-" (car p)))))
               (if sym
                   (set sym (mapconcat 'identity (cdr p) "=")))))
           param)
-    (if (stringp eim-page-length)
-        (setq eim-page-length (string-to-number eim-page-length)))
-    (setq eim-first-char (append eim-first-char nil)
-          eim-total-char (append eim-total-char nil))))
+    (if (stringp chinese-wbim-page-length)
+        (setq chinese-wbim-page-length (string-to-number chinese-wbim-page-length)))
+    (setq chinese-wbim-first-char (append chinese-wbim-first-char nil)
+          chinese-wbim-total-char (append chinese-wbim-total-char nil))))
 
-;;;_ , eim-use-package
-(defun eim-use-package (package-name &optional word-file active-func)
+;;;_ , chinese-wbim-use-package
+(defun chinese-wbim-use-package (package-name &optional word-file active-func)
   (interactive)
-  (mapc 'kill-local-variable eim-local-variable-list)
-  (mapc 'make-local-variable eim-local-variable-list)
-  (if (assoc package-name eim-package-list)
-      (setq eim-current-package (cdr (assoc package-name
-                                            eim-package-list)))
+  (mapc 'kill-local-variable chinese-wbim-local-variable-list)
+  (mapc 'make-local-variable chinese-wbim-local-variable-list)
+  (if (assoc package-name chinese-wbim-package-list)
+      (setq chinese-wbim-current-package (cdr (assoc package-name
+                                            chinese-wbim-package-list)))
     ;; make more room for extension
-    (setq eim-current-package (make-vector 9 nil)))
+    (setq chinese-wbim-current-package (make-vector 9 nil)))
   (if (functionp active-func)
       (funcall active-func))
-  (unless (and (eim-package-name)
-               (eim-check-buffers))
+  (unless (and (chinese-wbim-package-name)
+               (chinese-wbim-check-buffers))
     (if (and word-file
              (if (file-exists-p (expand-file-name word-file))
                  (setq word-file (expand-file-name word-file))
                (setq word-file (locate-file word-file load-path))))
         (progn
-          (eim-set-package-name package-name)
-          (eim-set-buffer-list (eim-load-file word-file))
-          (eim-set-history (make-hash-table :test 'equal))
-          (eim-set-mode-map (let ((map (make-sparse-keymap)))
-                              (set-keymap-parent map eim-mode-map)
+          (chinese-wbim-set-package-name package-name)
+          (chinese-wbim-set-buffer-list (chinese-wbim-load-file word-file))
+          (chinese-wbim-set-history (make-hash-table :test 'equal))
+          (chinese-wbim-set-mode-map (let ((map (make-sparse-keymap)))
+                              (set-keymap-parent map chinese-wbim-mode-map)
                               map))
-          (add-to-list 'eim-package-list (cons package-name eim-current-package))
-          (let ((param (cdr (assoc "param" (car (eim-buffer-list))))))
+          (add-to-list 'chinese-wbim-package-list (cons package-name chinese-wbim-current-package))
+          (let ((param (cdr (assoc "param" (car (chinese-wbim-buffer-list))))))
             (if (assoc "lib" param)
                 (load (cadr (assoc "lib" param)))))
-          (run-hooks 'eim-load-hook)
+          (run-hooks 'chinese-wbim-load-hook)
           (message nil))
       (error "没有这个文件: %s" word-file)))
-  (eim-install-variable)
-  (setq input-method-function 'eim-input-method)
-  (setq inactivate-current-input-method-function 'eim-inactivate)
-  (setq describe-current-input-method-function 'eim-help)
+  (chinese-wbim-install-variable)
+  (setq input-method-function 'chinese-wbim-input-method)
+  (setq inactivate-current-input-method-function 'chinese-wbim-inactivate)
+  (setq describe-current-input-method-function 'chinese-wbim-help)
   ;; If we are in minibuffer, turn off the current input method
   ;; before exiting.
   (when (eq (selected-window) (minibuffer-window))
-    (add-hook 'minibuffer-exit-hook 'eim-exit-from-minibuffer))
-  (run-hooks 'eim-active-hook)
-  (if (functionp (eim-active-function))
-      (funcall (eim-active-function))))
+    (add-hook 'minibuffer-exit-hook 'chinese-wbim-exit-from-minibuffer))
+  (run-hooks 'chinese-wbim-active-hook)
+  (if (functionp (chinese-wbim-active-function))
+      (funcall (chinese-wbim-active-function))))
 
-(defun eim-inactivate ()
+(defun chinese-wbim-inactivate ()
   (interactive)
-  (mapc 'kill-local-variable eim-local-variable-list))
+  (mapc 'kill-local-variable chinese-wbim-local-variable-list))
 
-(defun eim-help (&optional package)
+(defun chinese-wbim-help (&optional package)
   "Show input method docstring"
   (save-excursion
-    (let ((map (eim-mode-map))
-          (elt (assoc (eim-package-name) input-method-alist))
+    (let ((map (chinese-wbim-mode-map))
+          (elt (assoc (chinese-wbim-package-name) input-method-alist))
           reg desc docstr buf)
-      (setq buf (cdr (assoc "buffer" (car (eim-buffer-list)))))
+      (setq buf (cdr (assoc "buffer" (car (chinese-wbim-buffer-list)))))
       (set-buffer buf)
       (save-restriction
         (widen)
         (setq reg (condition-case err
-                      (eim-section-region "Description")
+                      (chinese-wbim-section-region "Description")
                     (error nil))
               desc (if reg
                        (buffer-substring-no-properties (car reg) (cdr reg))
@@ -520,19 +520,19 @@ beginning of line"
           (princ docstr))))))
 
 ;;;_ , page format
-(defsubst eim-choice (choice)
+(defsubst chinese-wbim-choice (choice)
   (if (consp choice)
       (car choice)
     choice))
 
-(defun eim-add-completion ()
-  "注意, eim-add-completion-function 在没有完补全之前返回 nil, 在加完所
+(defun chinese-wbim-add-completion ()
+  "注意, chinese-wbim-add-completion-function 在没有完补全之前返回 nil, 在加完所
 有补全之后一定要返回一个 t"
-  (if (functionp eim-add-completion-function)
-      (funcall eim-add-completion-function)
+  (if (functionp chinese-wbim-add-completion-function)
+      (funcall chinese-wbim-add-completion-function)
     t))
 
-(defun eim-format (key cp tp choice)
+(defun chinese-wbim-format (key cp tp choice)
   (let ((i 0))
     (format "%s[%d/%d]: %s"
             key  cp tp
@@ -542,194 +542,194 @@ beginning of line"
                           (format "%d.%s " (setq i (1+ i)) c))
                         choice) " "))))
 
-(defun eim-format-page ()
+(defun chinese-wbim-format-page ()
   "按当前位置，生成候选词条"
-  (let ((end (eim-page-end)))
-    (if (car eim-current-choices)
-        (let* ((start (1- (eim-page-start)))
-               (choices (car eim-current-choices))
-               (choice (eim-subseq choices start end))
-               (pos (1- (min eim-current-pos (length choices))))
+  (let ((end (chinese-wbim-page-end)))
+    (if (car chinese-wbim-current-choices)
+        (let* ((start (1- (chinese-wbim-page-start)))
+               (choices (car chinese-wbim-current-choices))
+               (choice (chinese-wbim-subseq choices start end))
+               (pos (1- (min chinese-wbim-current-pos (length choices))))
                (i 0))
-          (setq eim-current-str (eim-choice (nth pos choices)))
-          (setq eim-guidance-str
-                (funcall eim-format-function eim-current-key (eim-current-page)
-                         (eim-total-page) choice))
-          ;; (message "%d, %s, %s" pos eim-current-str eim-guidance-str)
-          (eim-show))
-      (setq eim-current-str eim-current-key)
-      (setq eim-guidance-str
-            (concat eim-current-key
-                    (if (cdr (assoc "completions" (cdr eim-current-choices)))
+          (setq chinese-wbim-current-str (chinese-wbim-choice (nth pos choices)))
+          (setq chinese-wbim-guidance-str
+                (funcall chinese-wbim-format-function chinese-wbim-current-key (chinese-wbim-current-page)
+                         (chinese-wbim-total-page) choice))
+          ;; (message "%d, %s, %s" pos chinese-wbim-current-str chinese-wbim-guidance-str)
+          (chinese-wbim-show))
+      (setq chinese-wbim-current-str chinese-wbim-current-key)
+      (setq chinese-wbim-guidance-str
+            (concat chinese-wbim-current-key
+                    (if (cdr (assoc "completions" (cdr chinese-wbim-current-choices)))
                         (format "[%s]: "
                                 (mapconcat 'identity
                                            (cdr (assoc
                                                  "completions"
-                                                 (cdr eim-current-choices)))
+                                                 (cdr chinese-wbim-current-choices)))
                                            "")))))
-      (eim-show))))
+      (chinese-wbim-show))))
 
-(defun eim-current-page ()
-  (1+ (/ (1- eim-current-pos) eim-page-length)))
+(defun chinese-wbim-current-page ()
+  (1+ (/ (1- chinese-wbim-current-pos) chinese-wbim-page-length)))
 
-(defun eim-total-page ()
-  (1+ (/ (1- (length (car eim-current-choices))) eim-page-length)))
+(defun chinese-wbim-total-page ()
+  (1+ (/ (1- (length (car chinese-wbim-current-choices))) chinese-wbim-page-length)))
 
-(defun eim-page-start ()
+(defun chinese-wbim-page-start ()
   "计算当前所在页的第一个词条的位置"
-  (let ((pos (min (length (car eim-current-choices)) eim-current-pos)))
-    (1+ (- pos (eim-mod pos eim-page-length)))))
+  (let ((pos (min (length (car chinese-wbim-current-choices)) chinese-wbim-current-pos)))
+    (1+ (- pos (chinese-wbim-mod pos chinese-wbim-page-length)))))
 
-(defun eim-page-end (&optional finish)
-  "计算当前所在页的最后一个词条的位置，如果 eim-current-choices 用
+(defun chinese-wbim-page-end (&optional finish)
+  "计算当前所在页的最后一个词条的位置，如果 chinese-wbim-current-choices 用
 完，则检查是否有补全。如果 FINISH 为 non-nil，说明，补全已经用完了"
-  (let* ((whole (length (car eim-current-choices)))
-         (len eim-page-length)
-         (pos eim-current-pos)
-         (last (+ (- pos (eim-mod pos len)) len)))
+  (let* ((whole (length (car chinese-wbim-current-choices)))
+         (len chinese-wbim-page-length)
+         (pos chinese-wbim-current-pos)
+         (last (+ (- pos (chinese-wbim-mod pos len)) len)))
     (if (< last whole)
         last
       (if finish
           whole
-        (eim-page-end (eim-add-completion))))))
+        (chinese-wbim-page-end (chinese-wbim-add-completion))))))
 
 ;;;_ , commands
-(defun eim-next-page (arg)
+(defun chinese-wbim-next-page (arg)
   (interactive "p")
-  (if (> (length eim-current-key) 0)
-      (let ((new (+ eim-current-pos (* eim-page-length arg) 1)))
-        (setq eim-current-pos (if (> new 0) new 1)
-              eim-current-pos (eim-page-start))
-        (eim-format-page))
+  (if (> (length chinese-wbim-current-key) 0)
+      (let ((new (+ chinese-wbim-current-pos (* chinese-wbim-page-length arg) 1)))
+        (setq chinese-wbim-current-pos (if (> new 0) new 1)
+              chinese-wbim-current-pos (chinese-wbim-page-start))
+        (chinese-wbim-format-page))
     (message "%c" last-command-event)
-    (eim-append-string (eim-translate last-command-event))
-    (eim-terminate-translation)))
+    (chinese-wbim-append-string (chinese-wbim-translate last-command-event))
+    (chinese-wbim-terminate-translation)))
 
-(defun eim-previous-page (arg)
+(defun chinese-wbim-previous-page (arg)
   (interactive "p")
-  (eim-next-page (- arg)))
+  (chinese-wbim-next-page (- arg)))
 
-(defun eim-delete-last-char ()
+(defun chinese-wbim-delete-last-char ()
   (interactive)
-  (if (> (length eim-current-key) 1)
+  (if (> (length chinese-wbim-current-key) 1)
       (progn
-        (setq eim-current-key (substring eim-current-key 0 -1))
-        (funcall eim-handle-function))
-    (setq eim-current-str "")
-    (eim-terminate-translation)))
+        (setq chinese-wbim-current-key (substring chinese-wbim-current-key 0 -1))
+        (funcall chinese-wbim-handle-function))
+    (setq chinese-wbim-current-str "")
+    (chinese-wbim-terminate-translation)))
 
-(defun eim-self-insert-command ()
-  "如果在 eim-first-char 列表中，则查找相应的词条，否则停止转换，插入对应的字符"
+(defun chinese-wbim-self-insert-command ()
+  "如果在 chinese-wbim-first-char 列表中，则查找相应的词条，否则停止转换，插入对应的字符"
   (interactive "*")
   ;; (message "%s" (current-buffer))
-  (if (if (eim-string-emptyp eim-current-key)
-          (member last-command-event eim-first-char)
-        (member last-command-event eim-total-char))
+  (if (if (chinese-wbim-string-emptyp chinese-wbim-current-key)
+          (member last-command-event chinese-wbim-first-char)
+        (member last-command-event chinese-wbim-total-char))
       (progn
-        (setq eim-current-key (concat eim-current-key (char-to-string last-command-event)))
-        (funcall eim-handle-function))
-    (eim-append-string (eim-translate last-command-event))
-    (eim-terminate-translation)))
+        (setq chinese-wbim-current-key (concat chinese-wbim-current-key (char-to-string last-command-event)))
+        (funcall chinese-wbim-handle-function))
+    (chinese-wbim-append-string (chinese-wbim-translate last-command-event))
+    (chinese-wbim-terminate-translation)))
 
-(defun eim-select-current ()
+(defun chinese-wbim-select-current ()
   "如果没有可选项，而且是用空格来绑定这个键，就插入空格，否则选择第一
 个词条"
   (interactive)
-  (if (null (car eim-current-choices))
-      (setq eim-current-str
-            (if (> (length eim-current-str) 0)
+  (if (null (car chinese-wbim-current-choices))
+      (setq chinese-wbim-current-str
+            (if (> (length chinese-wbim-current-str) 0)
                 ""
-              (eim-translate last-command-event)))
-    (eim-remember-select))
-  (eim-terminate-translation))
+              (chinese-wbim-translate last-command-event)))
+    (chinese-wbim-remember-select))
+  (chinese-wbim-terminate-translation))
 
-(defun eim-remember-select (&optional pos)
+(defun chinese-wbim-remember-select (&optional pos)
   (let ((rest (emms-delete-if (lambda (p) (string= (car p) "pos"))
-                              (cdr eim-current-choices))))
+                              (cdr chinese-wbim-current-choices))))
     (setq rest (append rest (list (cons "pos" (or pos
-                                                  eim-current-pos)))))
-    (puthash eim-current-key (cons (car eim-current-choices)
-                                   rest) (eim-history))))
+                                                  chinese-wbim-current-pos)))))
+    (puthash chinese-wbim-current-key (cons (car chinese-wbim-current-choices)
+                                   rest) (chinese-wbim-history))))
 
-(defun eim-number-select ()
+(defun chinese-wbim-number-select ()
   "如果没有可选项，插入数字，否则选择对应的词条"
   (interactive)
-  (if (car eim-current-choices)
-      (let ((index (+ (eim-page-start) (- last-command-event ?2)))
-            (end (eim-page-end)))
+  (if (car chinese-wbim-current-choices)
+      (let ((index (+ (chinese-wbim-page-start) (- last-command-event ?2)))
+            (end (chinese-wbim-page-end)))
         (if (>= index end)
-            (eim-show)
-          (eim-remember-select (1+ index))
-          (setq eim-current-str (eim-choice (nth index (car eim-current-choices))))
-          (eim-terminate-translation)))
-    (eim-append-string (char-to-string last-command-event))
-    (eim-terminate-translation)))
+            (chinese-wbim-show)
+          (chinese-wbim-remember-select (1+ index))
+          (setq chinese-wbim-current-str (chinese-wbim-choice (nth index (car chinese-wbim-current-choices))))
+          (chinese-wbim-terminate-translation)))
+    (chinese-wbim-append-string (char-to-string last-command-event))
+    (chinese-wbim-terminate-translation)))
 
-(defun eim-quit-clear ()
+(defun chinese-wbim-quit-clear ()
   (interactive)
-  (setq eim-current-str "")
-  (eim-terminate-translation))
+  (setq chinese-wbim-current-str "")
+  (chinese-wbim-terminate-translation))
 
-(defun eim-quit-no-clear ()
+(defun chinese-wbim-quit-no-clear ()
   (interactive)
-  (setq eim-current-str eim-current-key)
-  (eim-terminate-translation))
+  (setq chinese-wbim-current-str chinese-wbim-current-key)
+  (chinese-wbim-terminate-translation))
 
-(defun eim-terminate-translation ()
+(defun chinese-wbim-terminate-translation ()
   "Terminate the translation of the current key."
-  (setq eim-translating nil)
-  (eim-delete-region)
-  (setq eim-current-choices nil)
-  (setq eim-guidance-str "")
-  (when eim-use-tooltip
+  (setq chinese-wbim-translating nil)
+  (chinese-wbim-delete-region)
+  (setq chinese-wbim-current-choices nil)
+  (setq chinese-wbim-guidance-str "")
+  (when chinese-wbim-use-tooltip
     (x-hide-tip)))
 
-;;;_ , eim-handle-string
-(defun eim-handle-string ()
-  (if (and (functionp eim-stop-function)
-           (funcall eim-stop-function))
+;;;_ , chinese-wbim-handle-string
+(defun chinese-wbim-handle-string ()
+  (if (and (functionp chinese-wbim-stop-function)
+           (funcall chinese-wbim-stop-function))
       (progn
         (setq unread-command-events
-              (list (aref eim-current-key (1- (length eim-current-key)))))
-        (eim-terminate-translation))
-    (setq eim-current-choices (eim-get eim-current-key)
-          eim-current-pos
-          (if (eim-get-option 'record-position)
-              (cdr (assoc "pos" (cdr eim-current-choices)))
+              (list (aref chinese-wbim-current-key (1- (length chinese-wbim-current-key)))))
+        (chinese-wbim-terminate-translation))
+    (setq chinese-wbim-current-choices (chinese-wbim-get chinese-wbim-current-key)
+          chinese-wbim-current-pos
+          (if (chinese-wbim-get-option 'record-position)
+              (cdr (assoc "pos" (cdr chinese-wbim-current-choices)))
             1))
-    (eim-format-page)))
+    (chinese-wbim-format-page)))
 
-(defun eim-translate (char)
-  (if (functionp eim-translate-function)
-      (funcall eim-translate-function char)
+(defun chinese-wbim-translate (char)
+  (if (functionp chinese-wbim-translate-function)
+      (funcall chinese-wbim-translate-function char)
     (char-to-string char)))
 
 ;;;_ , Core function of input method (stole from quail)
-(defun eim-exit-from-minibuffer ()
+(defun chinese-wbim-exit-from-minibuffer ()
   (inactivate-input-method)
   (if (<= (minibuffer-depth) 1)
       (remove-hook 'minibuffer-exit-hook 'quail-exit-from-minibuffer)))
 
-(defun eim-setup-overlays ()
+(defun chinese-wbim-setup-overlays ()
   (let ((pos (point)))
-    (if (overlayp eim-overlay)
-        (move-overlay eim-overlay pos pos)
-      (setq eim-overlay (make-overlay pos pos))
+    (if (overlayp chinese-wbim-overlay)
+        (move-overlay chinese-wbim-overlay pos pos)
+      (setq chinese-wbim-overlay (make-overlay pos pos))
       (if input-method-highlight-flag
-          (overlay-put eim-overlay 'face 'eim-string-face)))))
+          (overlay-put chinese-wbim-overlay 'face 'chinese-wbim-string-face)))))
 
-(defun eim-delete-overlays ()
-  (if (and (overlayp eim-overlay) (overlay-start eim-overlay))
-      (delete-overlay eim-overlay)))
+(defun chinese-wbim-delete-overlays ()
+  (if (and (overlayp chinese-wbim-overlay) (overlay-start chinese-wbim-overlay))
+      (delete-overlay chinese-wbim-overlay)))
 
-(defun eim-show ()
+(defun chinese-wbim-show ()
   (unless enable-multibyte-characters
-    (setq eim-current-key nil
-          eim-current-str nil)
+    (setq chinese-wbim-current-key nil
+          chinese-wbim-current-str nil)
     (error "Can't input characters in current unibyte buffer"))
-  (eim-delete-region)
-  (insert eim-current-str)
-  (move-overlay eim-overlay (overlay-start eim-overlay) (point))
+  (chinese-wbim-delete-region)
+  (insert chinese-wbim-current-str)
+  (move-overlay chinese-wbim-overlay (overlay-start chinese-wbim-overlay) (point))
   ;; Then, show the guidance.
   (when (and (not input-method-use-echo-area)
              (null unread-command-events)
@@ -737,24 +737,24 @@ beginning of line"
     (if (eq (selected-window) (minibuffer-window))
         ;; Show the guidance in the next line of the currrent
         ;; minibuffer.
-        (eim-minibuffer-message
+        (chinese-wbim-minibuffer-message
          (format "  [%s]\n%s"
-                 current-input-method-title eim-guidance-str))
+                 current-input-method-title chinese-wbim-guidance-str))
       ;; Show the guidance in echo area without logging.
       (let ((message-log-max nil))
-        (if eim-use-tooltip
-            (let ((pos (string-match ": " eim-guidance-str)))
+        (if chinese-wbim-use-tooltip
+            (let ((pos (string-match ": " chinese-wbim-guidance-str)))
               (if pos
-                  (setq eim-guidance-str
-                        (concat (substring eim-guidance-str 0 pos)
+                  (setq chinese-wbim-guidance-str
+                        (concat (substring chinese-wbim-guidance-str 0 pos)
                                 "\n"
-                                (make-string (/ (- (string-width eim-guidance-str) pos) 2) (decode-char 'ucs #x2501))
+                                (make-string (/ (- (string-width chinese-wbim-guidance-str) pos) 2) (decode-char 'ucs #x2501))
                                 "\n"
-                                (substring eim-guidance-str (+ pos 2)))))
-              (eim-show-tooltip eim-guidance-str))
-          (message "%s" eim-guidance-str))))))
+                                (substring chinese-wbim-guidance-str (+ pos 2)))))
+              (chinese-wbim-show-tooltip chinese-wbim-guidance-str))
+          (message "%s" chinese-wbim-guidance-str))))))
 
-(defun eim-make-guidance-frame ()
+(defun chinese-wbim-make-guidance-frame ()
   "Make a new one-line frame for Quail guidance."
   (let* ((fparam (frame-parameters))
          (top (cdr (assq 'top fparam)))
@@ -769,7 +769,7 @@ beginning of line"
                           (menu-bar-lines . 0) (tool-bar-lines . 0))
                         (cons (cons 'top newtop) fparam)))))
 
-(defun eim-minibuffer-message (string)
+(defun chinese-wbim-minibuffer-message (string)
   (message nil)
   (let ((point-max (point-max))
         (inhibit-quit t))
@@ -782,26 +782,26 @@ beginning of line"
       (setq quit-flag nil
             unread-command-events '(7)))))
 
-(defun eim-input-method (key)
+(defun chinese-wbim-input-method (key)
   (if (or buffer-read-only
           overriding-terminal-local-map
           overriding-local-map)
       (list key)
     ;; (message "call with key: %c" key)
-    (eim-setup-overlays)
+    (chinese-wbim-setup-overlays)
     (let ((modified-p (buffer-modified-p))
           (buffer-undo-list t)
           (inhibit-modification-hooks t))
       (unwind-protect
-          (let ((input-string (eim-start-translation key)))
+          (let ((input-string (chinese-wbim-start-translation key)))
             ;;   (message "input-string: %s" input-string)
-            (setq eim-guidance-str "")
+            (setq chinese-wbim-guidance-str "")
             (when (and (stringp input-string)
                        (> (length input-string) 0))
               (if input-method-exit-on-first-char
                   (list (aref input-string 0))
-                (eim-input-string-to-events input-string))))
-        (eim-delete-overlays)
+                (chinese-wbim-input-string-to-events input-string))))
+        (chinese-wbim-delete-overlays)
         (set-buffer-modified-p modified-p)
         ;; Run this hook only when the current input method doesn't
         ;; require conversion. When conversion is required, the
@@ -809,7 +809,7 @@ beginning of line"
         ;; timing.
         (run-hooks 'input-method-after-insert-chunk-hook)))))
 
-(defun eim-start-translation (key)
+(defun chinese-wbim-start-translation (key)
   "Start translation of the typed character KEY by the current Quail package.
 Return the input string."
   ;; Check the possibility of translating KEY.
@@ -818,31 +818,31 @@ Return the input string."
       ;; OK, we can start translation.
       (let* ((echo-keystrokes 0)
              (help-char nil)
-             (overriding-terminal-local-map (eim-mode-map))
+             (overriding-terminal-local-map (chinese-wbim-mode-map))
              (generated-events nil)
              (input-method-function nil)
              (modified-p (buffer-modified-p))
              last-command-event last-command this-command)
-        (setq eim-current-str ""
-              eim-current-key ""
-              eim-translating t)
+        (setq chinese-wbim-current-str ""
+              chinese-wbim-current-key ""
+              chinese-wbim-translating t)
         (if key
             (setq unread-command-events
                   (cons key unread-command-events)))
-        (while eim-translating
+        (while chinese-wbim-translating
           (set-buffer-modified-p modified-p)
           (let* ((prompt (if input-method-use-echo-area
                              (format "%s%s %s"
                                      (or input-method-previous-message "")
-                                     eim-current-key
-                                     eim-guidance-str)))
+                                     chinese-wbim-current-key
+                                     chinese-wbim-guidance-str)))
                  (keyseq (read-key-sequence prompt nil nil t))
-                 (cmd (lookup-key (eim-mode-map) keyseq)))
+                 (cmd (lookup-key (chinese-wbim-mode-map) keyseq)))
             ;;             (message "key: %s, cmd:%s\nlcmd: %s, lcmdv: %s, tcmd: %s"
             ;;                      key cmd last-command last-command-event this-command)
             (if (if key
                     (commandp cmd)
-                  (eq cmd 'eim-self-insert-command))
+                  (eq cmd 'chinese-wbim-self-insert-command))
                 (progn
                   ;; (message "keyseq: %s" keyseq)
                   (setq last-command-event (aref keyseq (1- (length keyseq)))
@@ -857,14 +857,14 @@ Return the input string."
               (setq unread-command-events
                     (string-to-list (this-single-command-raw-keys)))
               ;; (message "unread-command-events: %s" unread-command-events)
-              (eim-terminate-translation))))
-        ;;    (1message "return: %s" eim-current-str)
-        eim-current-str)
+              (chinese-wbim-terminate-translation))))
+        ;;    (1message "return: %s" chinese-wbim-current-str)
+        chinese-wbim-current-str)
     ;; Since KEY doesn't start any translation, just return it.
     ;; But translate KEY if necessary.
     (char-to-string key)))
 
-(defun eim-input-string-to-events (str)
+(defun chinese-wbim-input-string-to-events (str)
   (let ((events (mapcar
                  (lambda (c)
                    ;; This gives us the chance to unify on input
@@ -876,20 +876,20 @@ Return the input string."
     (if (or (get-text-property 0 'advice str)
             (next-single-property-change 0 'advice str))
         (setq events
-              (nconc events (list (list 'eim-advice str)))))
+              (nconc events (list (list 'chinese-wbim-advice str)))))
     events))
 
-(defun eim-advice (args)
+(defun chinese-wbim-advice (args)
   (interactive "e")
   (let* ((string (nth 1 args))
          (func (get-text-property 0 'advice string)))
     (if (functionp func)
         (funcall func string))))
 
-(global-set-key [eim-advice] 'eim-advice)
+(global-set-key [chinese-wbim-advice] 'chinese-wbim-advice)
 
 ;;; borrow from completion-ui
-(defun eim-frame-posn-at-point (&optional position window)
+(defun chinese-wbim-frame-posn-at-point (&optional position window)
   "Return pixel position of top left corner of glyph at POSITION,
 relative to top left corner of frame containing WINDOW. Defaults
 to the position of point in the selected window."
@@ -900,15 +900,15 @@ to the position of point in the selected window."
     (cons (+ (car x-y) (car  edges))
           (+ (cdr x-y) (cadr edges)))))
 
-(defface eim-tooltip-face '((((class color)) :inherit tooltip))
+(defface chinese-wbim-tooltip-face '((((class color)) :inherit tooltip))
   "face to display items"
   :group 'eim)
 
-(defun eim-show-tooltip (text)
+(defun chinese-wbim-show-tooltip (text)
   "Show tooltip text near cursor."
-  (let ((pos (eim-frame-posn-at-point))
-        (fg (face-attribute 'eim-tooltip-face :foreground nil 'tooltip))
-        (bg (face-attribute 'eim-tooltip-face :background nil 'tooltip))
+  (let ((pos (chinese-wbim-frame-posn-at-point))
+        (fg (face-attribute 'chinese-wbim-tooltip-face :foreground nil 'tooltip))
+        (bg (face-attribute 'chinese-wbim-tooltip-face :background nil 'tooltip))
         (params tooltip-frame-parameters)
         ;; seem the top position should add 65 pixel to make
         ;; the text display under the baseline of cursor
@@ -937,15 +937,15 @@ to the position of point in the selected window."
     (when (stringp bg)
       (setq params (append params `((background-color . ,bg)))))
     (setq params (append params `((left . ,left) (top . ,top))))
-    (x-show-tip (propertize text 'face 'eim-tooltip-face)
-                nil params eim-tooltip-timeout)))
+    (x-show-tip (propertize text 'face 'chinese-wbim-tooltip-face)
+                nil params chinese-wbim-tooltip-timeout)))
 
 ;;;_. utils
 ;;;###autoload
-(defun eim-create-word-file ()
+(defun chinese-wbim-create-word-file ()
   "创建一个能用于 eim 的新文件，按说明填入相应的内容就能生成对应的输入法"
   (interactive)
-  (let ((buffer (generate-new-buffer "eim-word")))
+  (let ((buffer (generate-new-buffer "chinese-wbim-word")))
     (switch-to-buffer buffer)
     (insert
      "[Comment]\n"
@@ -961,8 +961,8 @@ to the position of point in the selected window."
      "other-files=\n"
      "# 每页显示的词条数目\n"
      "page-length=\n\n"
-     "如果需要加入标点，加入一个 Punctuation 部分。然后设置 eim-translate-fuction。\n"
-     "如果需要排序，或者合并相同编码的词条，使用 C-c C-c 或者 M-x eim-build-table。\n"
+     "如果需要加入标点，加入一个 Punctuation 部分。然后设置 chinese-wbim-translate-fuction。\n"
+     "如果需要排序，或者合并相同编码的词条，使用 C-c C-c 或者 M-x chinese-wbim-build-table。\n"
      "如果有需要，可能还要修改 first-char 和 total-char\n\n"
      "[Parameter]\n"
      "first-char=abcdefghijklmnopqrstuvwxyz\n"
@@ -971,14 +971,14 @@ to the position of point in the selected window."
      "\n\n"
      "[Table]\n"
      )
-    (local-set-key "\C-c\C-c" 'eim-build-table)))
+    (local-set-key "\C-c\C-c" 'chinese-wbim-build-table)))
 
 ;;;###autoload
-(defun eim-build-table ()
+(defun chinese-wbim-build-table ()
   (interactive)
   (save-restriction
-    (let ((table (eim-section-region "Table"))
-          (param (eim-section-region "Parameter"))
+    (let ((table (chinese-wbim-section-region "Table"))
+          (param (chinese-wbim-section-region "Parameter"))
           (lastw "")
           first-char total-char currw)
       (narrow-to-region (car table) (cdr table))
@@ -987,8 +987,8 @@ to the position of point in the selected window."
       (goto-char (point-min))
       (while (not (eobp))
         (if (looking-at "^[ \t]*$")     ; 如果有空行，删除
-            (eim-delete-line)
-          (setq currw (eim-code-at-point))
+            (chinese-wbim-delete-line)
+          (setq currw (chinese-wbim-code-at-point))
           (add-to-list 'first-char (aref currw 0))
           (mapc (lambda (c) (add-to-list 'total-char c)) (append currw nil))
           (if (string= currw lastw)
@@ -1002,7 +1002,7 @@ to the position of point in the selected window."
       (while (not (eobp))
         (if (or (looking-at "^first-char=")
                 (looking-at "^total-char="))
-            (eim-delete-line)
+            (chinese-wbim-delete-line)
           (forward-line 1)))
       (if (looking-at "^$")
           (delete-backward-char 1)))))

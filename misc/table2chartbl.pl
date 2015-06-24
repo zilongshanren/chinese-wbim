@@ -54,14 +54,14 @@ foreach ( keys %table ) {
     push @{$rtable{$table{$_}}}, $_;
 }
 
-$output ||= "eim-".$im."-chars.el";
+$output ||= "chinese-wbim-".$im."-chars.el";
 open(my $fh, ">:utf8", $output) or die "Can't create file $output: $!";
 print "Save table to $output...\n";
 
 print {$fh} <<'HEADER';
 ;;; -*- coding: utf-8 -*-
 ;;;_. 字库
-(eim-make-char-table '(
+(chinese-wbim-make-char-table '(
 HEADER
 
 foreach ( sort keys %rtable ) {
@@ -74,7 +74,7 @@ foreach ( sort keys %rtable ) {
 }
 
 print {$fh} <<"FOOTER";
-) eim-$im-char-table)
+) chinese-wbim-$im-char-table)
 FOOTER
 
 print "Done!\n"

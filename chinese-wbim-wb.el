@@ -47,83 +47,83 @@
 
 (require 'chinese-wbim-table)
 
-(defgroup eim-wb nil
+(defgroup chinese-wbim-wb nil
   "eim wubi input method"
   :group 'eim)
   
-(defcustom eim-wb-history-file "~/.emacs.d/wbx-history"
+(defcustom chinese-wbim-wb-history-file "~/.emacs.d/wbx-history"
   "保存选择的历史记录."
   :type 'file
-  :group 'eim-wb)
+  :group 'chinese-wbim-wb)
 
-(defcustom eim-wb-user-file "mywb.txt"
+(defcustom chinese-wbim-wb-user-file "mywb.txt"
   "保存用户自造词."
   :type 'file
-  :group 'eim-wb)
+  :group 'chinese-wbim-wb)
 
-(defcustom eim-wb-save-always nil
+(defcustom chinese-wbim-wb-save-always nil
   "是否每次加入新词都要保存.
 当然设置为 nil，也会在退出 Emacs 里保存一下的."
   :type 'boolean
-  :group 'eim-wb)
+  :group 'chinese-wbim-wb)
 
-(defcustom eim-wb-add-all-completion-limit 3
+(defcustom chinese-wbim-wb-add-all-completion-limit 3
   "在超过输入字符串超过这个长度时会添加所有补全."
   :type 'integer
-  :group 'eim-wb)
+  :group 'chinese-wbim-wb)
 
-(defvar eim-wb-load-hook nil)
-(defvar eim-wb-package nil)
-(defvar eim-wb-char-table (make-vector 1511 0))
-(defvar eim-wb-punctuation-list nil)
-(defvar eim-wb-initialized nil)
+(defvar chinese-wbim-wb-load-hook nil)
+(defvar chinese-wbim-wb-package nil)
+(defvar chinese-wbim-wb-char-table (make-vector 1511 0))
+(defvar chinese-wbim-wb-punctuation-list nil)
+(defvar chinese-wbim-wb-initialized nil)
 
-(defun eim-wb-create-word (word)
+(defun chinese-wbim-wb-create-word (word)
   "Insert WORD to database and write into user file."
   (let ((len (length word))
         code)
     (setq code
      (cond
       ((= len 2)
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 2)
-               (substring (eim-table-get-char-code (aref word 1)) 0 2)))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 2)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 2)))
       ((= len 3)
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 1)
-               (substring (eim-table-get-char-code (aref word 1)) 0 1)
-               (substring (eim-table-get-char-code (aref word 2)) 0 2)))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 2)) 0 2)))
       (t
-       (concat (substring (eim-table-get-char-code (aref word 0)) 0 1)
-               (substring (eim-table-get-char-code (aref word 1)) 0 1)
-               (substring (eim-table-get-char-code (aref word 2)) 0 1)
-               (substring (eim-table-get-char-code (aref word (1- (length word)))) 0 1)))))))
+       (concat (substring (chinese-wbim-table-get-char-code (aref word 0)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 1)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word 2)) 0 1)
+               (substring (chinese-wbim-table-get-char-code (aref word (1- (length word)))) 0 1)))))))
 
 ;;;_. load it
-(unless eim-wb-initialized
-  (setq eim-wb-package eim-current-package)
-  (setq eim-wb-punctuation-list
-        (eim-read-punctuation eim-wb-package))
-  (let ((map (eim-mode-map)))
-    (define-key map "\t" 'eim-table-show-completion)
-    (define-key map ";" 'eim-quick-select-1)
-    (define-key map "'" 'eim-quick-select-2))
-  (defvar eim-wb-use-gbk nil)
+(unless chinese-wbim-wb-initialized
+  (setq chinese-wbim-wb-package chinese-wbim-current-package)
+  (setq chinese-wbim-wb-punctuation-list
+        (chinese-wbim-read-punctuation chinese-wbim-wb-package))
+  (let ((map (chinese-wbim-mode-map)))
+    (define-key map "\t" 'chinese-wbim-table-show-completion)
+    (define-key map ";" 'chinese-wbim-quick-select-1)
+    (define-key map "'" 'chinese-wbim-quick-select-2))
+  (defvar chinese-wbim-wb-use-gbk nil)
   (let ((path (file-name-directory load-file-name)))
     (load (concat path
-                  (if (and (boundp 'eim-wb-use-gbk)
-                           eim-wb-use-gbk)
+                  (if (and (boundp 'chinese-wbim-wb-use-gbk)
+                           chinese-wbim-wb-use-gbk)
                       "chinese-wbim-wb-gbk" "chinese-wbim-wb-gb2312"))))
 
-  (eim-table-add-user-file eim-wb-user-file)
-  (eim-table-load-history eim-wb-history-file)
-  (run-hooks 'eim-wb-load-hook)
-  (eim-set-option 'table-create-word-function 'eim-wb-create-word)
-  (eim-set-option 'punctuation-list 'eim-wb-punctuation-list)
-  (eim-set-option 'max-length 4)
-  (eim-set-option 'translate-chars '(?z))
-  (eim-set-option 'all-completion-limit eim-wb-add-all-completion-limit)
-  (eim-set-option 'char-table eim-wb-char-table)
-  (eim-set-active-function 'eim-table-active-function)
-  (setq eim-wb-initialized t))
+  (chinese-wbim-table-add-user-file chinese-wbim-wb-user-file)
+  (chinese-wbim-table-load-history chinese-wbim-wb-history-file)
+  (run-hooks 'chinese-wbim-wb-load-hook)
+  (chinese-wbim-set-option 'table-create-word-function 'chinese-wbim-wb-create-word)
+  (chinese-wbim-set-option 'punctuation-list 'chinese-wbim-wb-punctuation-list)
+  (chinese-wbim-set-option 'max-length 4)
+  (chinese-wbim-set-option 'translate-chars '(?z))
+  (chinese-wbim-set-option 'all-completion-limit chinese-wbim-wb-add-all-completion-limit)
+  (chinese-wbim-set-option 'char-table chinese-wbim-wb-char-table)
+  (chinese-wbim-set-active-function 'chinese-wbim-table-active-function)
+  (setq chinese-wbim-wb-initialized t))
 
 (provide 'chinese-wbim-wb)
 ;;; chinese-wbim-wb.el ends here

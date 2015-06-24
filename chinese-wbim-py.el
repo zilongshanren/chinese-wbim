@@ -40,67 +40,67 @@
 (require 'chinese-wbim-extra)
 
 ;;;_. variable declare
-(defvar eim-py-shenmu '("b" "p" "m" "f" "d" "t" "n" "l" "g" "k" "h"
+(defvar chinese-wbim-py-shenmu '("b" "p" "m" "f" "d" "t" "n" "l" "g" "k" "h"
 			"j" "q" "x" "z" "c" "s" "zh" "ch" "sh" "r" "y" "w"))
-(defvar eim-py-yunmu '("a" "o" "e" "i" "u" "v" "ai" "ei" "ui" "ao" "ou" "iu"
+(defvar chinese-wbim-py-yunmu '("a" "o" "e" "i" "u" "v" "ai" "ei" "ui" "ao" "ou" "iu"
 		       "ie" "ia" "ua" "ve" "er" "an" "en" "in" "un" "vn" "ang" "iong"
 		       "eng" "ing" "ong" "uan" "uang" "ian" "iang" "iao" "ue"
 		       "uai" "uo"))
-(defvar eim-py-valid-yunmu '("a" "o" "e" "ai" "ei" "ui" "ao" "ou" "er" "an" "en"
+(defvar chinese-wbim-py-valid-yunmu '("a" "o" "e" "ai" "ei" "ui" "ao" "ou" "er" "an" "en"
                              "ang" "eng"))
 
-(defvar eim-py-load-hook nil)
-(defvar eim-py-initialized nil)
-(defvar eim-py-punctuation-list nil)
-(defvar eim-py-package nil)
-(defvar eim-py-char-table (make-vector 1511 nil))
+(defvar chinese-wbim-py-load-hook nil)
+(defvar chinese-wbim-py-initialized nil)
+(defvar chinese-wbim-py-punctuation-list nil)
+(defvar chinese-wbim-py-package nil)
+(defvar chinese-wbim-py-char-table (make-vector 1511 nil))
 
-(defvar eim-py-pos nil)
-(defvar eim-py-pylist nil)
+(defvar chinese-wbim-py-pos nil)
+(defvar chinese-wbim-py-pylist nil)
 
 ;;;_. handle function
-(defun eim-py-handle-string ()
-  (let ((str eim-current-key)
+(defun chinese-wbim-py-handle-string ()
+  (let ((str chinese-wbim-current-key)
         userpos wordspy)
-    (setq eim-py-pylist (eim-py-split-string str)
-          eim-py-pos 0)
-    (unless (and (eim-py-validp eim-py-pylist)
+    (setq chinese-wbim-py-pylist (chinese-wbim-py-split-string str)
+          chinese-wbim-py-pos 0)
+    (unless (and (chinese-wbim-py-validp chinese-wbim-py-pylist)
                  (progn
-                   (setq userpos (eim-py-user-divide-pos str)
-                         eim-current-key (eim-py-restore-user-divide
-                                          (eim-py-pylist-to-string eim-py-pylist)
+                   (setq userpos (chinese-wbim-py-user-divide-pos str)
+                         chinese-wbim-current-key (chinese-wbim-py-restore-user-divide
+                                          (chinese-wbim-py-pylist-to-string chinese-wbim-py-pylist)
                                           userpos))
-                   (setq eim-current-choices (list (delete-dups (eim-py-get-choices eim-py-pylist))))
-                   (when  (car eim-current-choices)
-                     (setq eim-current-pos 1)
-                     (eim-py-format-page)
+                   (setq chinese-wbim-current-choices (list (delete-dups (chinese-wbim-py-get-choices chinese-wbim-py-pylist))))
+                   (when  (car chinese-wbim-current-choices)
+                     (setq chinese-wbim-current-pos 1)
+                     (chinese-wbim-py-format-page)
                      t)))
-      (setq eim-current-str (replace-regexp-in-string "-" "" eim-current-key))
-      (setq eim-guidance-str (format "%s"
+      (setq chinese-wbim-current-str (replace-regexp-in-string "-" "" chinese-wbim-current-key))
+      (setq chinese-wbim-guidance-str (format "%s"
                                      (replace-regexp-in-string
-                                      "-" " " eim-current-key)))
-      (eim-show))))
+                                      "-" " " chinese-wbim-current-key)))
+      (chinese-wbim-show))))
 
-(defun eim-py-format-page ()
+(defun chinese-wbim-py-format-page ()
   "按当前位置，生成候选词条"
-  (let* ((end (eim-page-end))
-         (start (1- (eim-page-start)))
-         (choices (car eim-current-choices))
-         (choice (eim-subseq choices start end))
-         (pos (1- (min eim-current-pos (length choices))))
+  (let* ((end (chinese-wbim-page-end))
+         (start (1- (chinese-wbim-page-start)))
+         (choices (car chinese-wbim-current-choices))
+         (choice (chinese-wbim-subseq choices start end))
+         (pos (1- (min chinese-wbim-current-pos (length choices))))
          (i 0) rest)
-    (setq eim-current-str (concat (substring eim-current-str 0 eim-py-pos)
-                                  (eim-choice (nth pos choices)))
+    (setq chinese-wbim-current-str (concat (substring chinese-wbim-current-str 0 chinese-wbim-py-pos)
+                                  (chinese-wbim-choice (nth pos choices)))
           rest (mapconcat (lambda (py)
                             (concat (car py) (cdr py)))
-                          (nthcdr (length eim-current-str) eim-py-pylist)
+                          (nthcdr (length chinese-wbim-current-str) chinese-wbim-py-pylist)
                           "'"))
     (if (string< "" rest)
-        (setq eim-current-str (concat eim-current-str rest)))
-    (setq eim-guidance-str
+        (setq chinese-wbim-current-str (concat chinese-wbim-current-str rest)))
+    (setq chinese-wbim-guidance-str
           (format "%s[%d/%d]: %s"
-                  (replace-regexp-in-string "-" " " eim-current-key)
-                  (eim-current-page) (eim-total-page)
+                  (replace-regexp-in-string "-" " " chinese-wbim-current-key)
+                  (chinese-wbim-current-page) (chinese-wbim-total-page)
                   (mapconcat 'identity
                              (mapcar
                               (lambda (c)
@@ -109,63 +109,63 @@
                                             (concat (car c) (cdr c))
                                           c)))
                               choice) " ")))
-    (eim-show)))
+    (chinese-wbim-show)))
 
-(defun eim-py-pylist-to-string (pylist)
+(defun chinese-wbim-py-pylist-to-string (pylist)
   "把分解的拼音合并，以便进行查找"
   (mapconcat 'identity
   (mapcar (lambda (w) (concat (car w) (cdr w))) pylist)
   "-"))
 
 ;; 将汉字的拼音分成声母和其它
-(defun eim-py-get-sm (py)
+(defun chinese-wbim-py-get-sm (py)
   "从一个拼音字符串中提出第一个声母。"
   (when (and py (string< "" py))
     (let (shenmu yunmu len)
       (if (< (length py) 2)
-          (if (member py eim-py-shenmu)
+          (if (member py chinese-wbim-py-shenmu)
               (cons py "")
             (cons "" py))
         (setq shenmu (substring py 0 2))
-        (if (member shenmu eim-py-shenmu)
+        (if (member shenmu chinese-wbim-py-shenmu)
             (setq py (substring py 2))
           (setq shenmu (substring py 0 1))
-          (if (member shenmu eim-py-shenmu)
+          (if (member shenmu chinese-wbim-py-shenmu)
               (setq py (substring py 1))
             (setq shenmu "")))
         (cons shenmu py)))))
 
-(defun eim-py-get-ym (py)
+(defun chinese-wbim-py-get-ym (py)
   "从一个拼音字符串中提出第一个韵母"
   (when (and py (string< "" py))
     (let (yunmu len)
       (setq len (min (length py) 5))
       (setq yunmu (substring py 0 len))
-      (while (and (not (member yunmu eim-py-yunmu))
+      (while (and (not (member yunmu chinese-wbim-py-yunmu))
                   (> len 0))
         (setq yunmu (substring py 0 (setq len (1- len)))))
       (setq py (substring py len))
       (if (and (string< "" py)
-               (not (member (substring py 0 1) eim-py-shenmu))
-               (member (substring yunmu -1) eim-py-shenmu)
-               (member (substring yunmu 0 -1) eim-py-yunmu))
+               (not (member (substring py 0 1) chinese-wbim-py-shenmu))
+               (member (substring yunmu -1) chinese-wbim-py-shenmu)
+               (member (substring yunmu 0 -1) chinese-wbim-py-yunmu))
           (setq py (concat (substring yunmu -1) py)
                 yunmu (substring yunmu 0 -1)))
       (cons yunmu py))))
 
-(defun eim-py-get-charpy (py)
+(defun chinese-wbim-py-get-charpy (py)
   "分解一个拼音字符串成声母和韵母。"
   (when (and py (string< "" py))
-    (let* ((sm (eim-py-get-sm py))
-           (ym (eim-py-get-ym (cdr sm)))
+    (let* ((sm (chinese-wbim-py-get-sm py))
+           (ym (chinese-wbim-py-get-ym (cdr sm)))
            (chpy (concat (car sm) (car ym))))
       (if (or (null ym)                 ; 如果韵母为空
-              (and (string< "" (car ym)) (not (eim-py-get chpy)))) ; 错误的拼音
+              (and (string< "" (car ym)) (not (chinese-wbim-py-get chpy)))) ; 错误的拼音
           (cons sm "")
         (cons (cons (car sm) (car ym)) (cdr ym))))))
 
 ;;; 处理输入的拼音
-(defun eim-py-split-string (py)
+(defun chinese-wbim-py-split-string (py)
   "把一个拼音字符串分解。如果含有 '，优先在这个位置中断，否则，自动分
 解成声母和韵母的组合"
   (when (and py (string< "" py))
@@ -174,24 +174,24 @@
                      (let (chpy pylist)
                        (setq p (replace-regexp-in-string "[ -]" "" p))
                        (while (when (string< "" p)
-                                (setq chpy (eim-py-get-charpy p))
+                                (setq chpy (chinese-wbim-py-get-charpy p))
                                 (setq pylist (append pylist (list (car chpy))))
                                 (setq p (cdr chpy))))
                        pylist))
                    (split-string py "'")))))
 
-(defun eim-py-validp (pylist)
+(defun chinese-wbim-py-validp (pylist)
   "检查得到的拼音是否含有声母为空，而韵母又不正确的拼音"
   (let ((valid t) py)
     (while (progn
              (setq py (car pylist))
              (if (and (not (string< "" (car py)))
-                      (not (member (cdr py) eim-py-valid-yunmu)))
+                      (not (member (cdr py) chinese-wbim-py-valid-yunmu)))
                  (setq valid nil)
                (setq pylist (cdr pylist)))))
     valid))
 
-(defun eim-py-user-divide-pos (py)
+(defun chinese-wbim-py-user-divide-pos (py)
   "检测出用户分割的位置"
   (setq py (replace-regexp-in-string "-" "" py))
   (let (poslist (start 0))
@@ -200,7 +200,7 @@
       (setq poslist (append poslist (list (match-beginning 0)))))
     poslist))
 
-(defun eim-py-restore-user-divide (py pos)
+(defun chinese-wbim-py-restore-user-divide (py pos)
   "按检测出的用户分解的位置，重新设置拼音"
   (let ((i 0) (shift 0) cur)
     (setq cur (car pos)
@@ -218,54 +218,54 @@
     py))
 
 ;;;_. 词组选择解析
-(defun eim-py-get-choices (pylist)
+(defun chinese-wbim-py-get-choices (pylist)
   "得到可能的词组和汉字。例如：
 
- (eim-py-get-choices  (eim-py-split-string \"pin-yin\"))
+ (chinese-wbim-py-get-choices  (chinese-wbim-py-split-string \"pin-yin\"))
   => (#(\"拼音\" 0 2 (py (\"pin-yin\"))) \"拼\" \"品\" \"贫\" \"苹\" \"聘\" \"频\" \"拚\" \"颦\" \"牝\" \"嫔\" \"姘\" \"嚬\")
  
- (eim-py-get-choices  (eim-py-split-string \"pin-yin\"))
+ (chinese-wbim-py-get-choices  (chinese-wbim-py-split-string \"pin-yin\"))
  => (#(\"拼音\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"贫铀\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"聘用\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) \"拼\" \"品\" \"贫\" \"苹\" \"聘\" \"频\" \"拚\" \"颦\" \"牝\" \"嫔\" \"姘\" \"嚬\")
 
 "
   (let (choice words chars wordspy choice)
-    (setq wordspy (eim-py-possible-words-py pylist))
+    (setq wordspy (chinese-wbim-py-possible-words-py pylist))
     (if wordspy
-        (setq words (eim-py-possible-words wordspy)))
-    (setq chars (eim-py-get (concat (caar pylist) (cdar pylist)))
+        (setq words (chinese-wbim-py-possible-words wordspy)))
+    (setq chars (chinese-wbim-py-get (concat (caar pylist) (cdar pylist)))
           choice (append words chars))))
 
-(defun eim-py-possible-words (wordspy)
+(defun chinese-wbim-py-possible-words (wordspy)
   "根据拼音得到可能的词组。例如：
-  (eim-py-possible-words '((\"p-y\" (\"p\" . \"in\") (\"y\" . \"\"))))
+  (chinese-wbim-py-possible-words '((\"p-y\" (\"p\" . \"in\") (\"y\" . \"\"))))
     => (#(\"拼音\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"贫铀\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"聘用\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))))
 
 "
   (let (words)
     (dolist (word (reverse wordspy))
       (if (listp word)
-          (setq words (append words (eim-py-match-word (eim-py-get (car word))
+          (setq words (append words (chinese-wbim-py-match-word (chinese-wbim-py-get (car word))
                                                        (cdr word))))
         (setq words (append words (mapcar (lambda (w)
                                             (propertize w 'py (list word)))
-                                          (eim-py-get word))))))
+                                          (chinese-wbim-py-get word))))))
     words))
 
-(defun eim-py-possible-words-py (pylist)
+(defun chinese-wbim-py-possible-words-py (pylist)
   "所有可能的词组拼音。从第一个字开始，每个字断开形成一个拼音。如果是
 完整拼音，则给出完整的拼音，如果是给出声母，则为一个 CONS CELL，CAR 是
 拼音，CDR 是拼音列表。例如：
 
- (setq foo-pylist (eim-py-split-string \"pin-yin-sh-r\"))
+ (setq foo-pylist (chinese-wbim-py-split-string \"pin-yin-sh-r\"))
   => ((\"p\" . \"in\") (\"y\" . \"in\") (\"sh\" . \"\") (\"r\" . \"\"))
 
- (eim-py-possible-words-py foo-pylist)
+ (chinese-wbim-py-possible-words-py foo-pylist)
   => (\"pin-yin\" (\"p-y-sh\" (\"p\" . \"in\") (\"y\" . \"in\") (\"sh\" . \"\")) (\"p-y-sh-r\" (\"p\" . \"in\") (\"y\" . \"in\") (\"sh\" . \"\") (\"r\" . \"\")))
  "
   (let (pys fullpy smpy wordlist (full t))
     (if (string< "" (cdar pylist))
         (setq fullpy (concat (caar pylist) (cdar pylist))
-              smpy (eim-py-essential-py (car pylist)))
+              smpy (chinese-wbim-py-essential-py (car pylist)))
       (setq smpy (caar pylist)
             full nil))
     (setq wordlist (list (car pylist)))
@@ -273,22 +273,22 @@
       (setq wordlist (append wordlist (list py)))
       (if (and full (string< "" (cdr py)))
           (setq fullpy (concat fullpy "-" (car py) (cdr py))
-                smpy (concat smpy "-" (eim-py-essential-py py))
+                smpy (concat smpy "-" (chinese-wbim-py-essential-py py))
                 pys (append pys (list fullpy)))
         (setq full nil
-              smpy (concat smpy "-" (eim-py-essential-py py))
+              smpy (concat smpy "-" (chinese-wbim-py-essential-py py))
               pys (append pys (list (cons smpy wordlist))))))
     ;; (message "%s: %s" pys wordlist))
     pys))
 
-(defun eim-py-match-word (wordlist wordspy)
+(defun chinese-wbim-py-match-word (wordlist wordspy)
   "给出一个词组列表和它的拼音列表，给出所有可能的词组，并加上一个 py
 属性。例如：
 
- (eim-py-get \"p-y\")
+ (chinese-wbim-py-get \"p-y\")
   => (\"拼音\" \"番禺\" \"培养\" \"培育\" \"配药\" \"彭阳\" \"朋友\" \"偏远\" \"便宜\" \"片语\" \"飘扬\" \"漂移\" \"漂游\" \"贫铀\" \"聘用\" \"平阳\" \"平遥\" \"平邑\" \"平阴\" \"平舆\" \"平原\" \"平远\" \"濮阳\")
  
- (eim-py-match-word (eim-py-get \"p-y\") '((\"p\" . \"in\") (\"y\" . \"\")))
+ (chinese-wbim-py-match-word (chinese-wbim-py-get \"p-y\") '((\"p\" . \"in\") (\"y\" . \"\")))
   => (#(\"拼音\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"贫铀\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))) #(\"聘用\" 0 2 (py ((\"p\" . \"in\") (\"y\" . \"\")))))
 
 "
@@ -302,8 +302,8 @@
           ;; (message "py: %s" py)
           (when (string< "" (cdr py))
             (let (chmatch)
-              (dolist (chpy (eim-py-get-char-code (aref word i)))
-                (if (string= (cdr (eim-py-get-sm chpy)) (cdr py))
+              (dolist (chpy (chinese-wbim-py-get-char-code (aref word i)))
+                (if (string= (cdr (chinese-wbim-py-get-sm chpy)) (cdr py))
                     (setq chmatch t)))
               (or chmatch (setq match nil)))))
         ;; (message "%d: py: %s, match: %s" i py match))
@@ -311,21 +311,21 @@
             (setq words (append words (list (propertize word 'py wordspy)))))))
     words))
 
-(defun eim-py-essential-py (py)
+(defun chinese-wbim-py-essential-py (py)
   "一个拼音中的主要部分，如果有声母返回声母，否则返回韵母"
   (if (string< "" (car py))
       (car py)
     (cdr py)))
 
 ;;;_. create and rearrage
-(defun eim-py-match-py (word pylist)
+(defun chinese-wbim-py-match-py (word pylist)
   (let (sym words fullpy abbpy chpy)
     (when (> (length word) 1)
       (if (stringp (car pylist))        ; if is full pinyin
           (progn (setq fullpy (car pylist))
                  (cons fullpy (mapconcat 'identity
-                                         (mapcar 'eim-py-essential-py
-                                                 (eim-py-split-string (replace-regexp-in-string "-" "'" fullpy)))
+                                         (mapcar 'chinese-wbim-py-essential-py
+                                                 (chinese-wbim-py-split-string (replace-regexp-in-string "-" "'" fullpy)))
                                                  "-")))
         (dotimes (i (length word))
           (setq chpy (car pylist)
@@ -336,193 +336,193 @@
           (if (string< "" (cdr chpy))
               (setq fullpy (concat fullpy "-" (car chpy) (cdr chpy)))
             (setq fullpy (concat fullpy "-"
-                                 (car (eim-py-get-char-code (aref word i)))))))
+                                 (car (chinese-wbim-py-get-char-code (aref word i)))))))
         (cons (substring fullpy 1)
               (substring abbpy 1))))))
 
-(defun eim-py-intern-word (word py)
-  (let((buf (cdr (assoc "buffer" (car (eim-buffer-list)))))
+(defun chinese-wbim-py-intern-word (word py)
+  (let((buf (cdr (assoc "buffer" (car (chinese-wbim-buffer-list)))))
        words)
     (with-current-buffer buf
-      (eim-bisearch-word py (point-min) (point-max))
-      (if (string= (eim-code-at-point) py)
+      (chinese-wbim-bisearch-word py (point-min) (point-max))
+      (if (string= (chinese-wbim-code-at-point) py)
           (progn
-            (setq words (eim-line-content)
+            (setq words (chinese-wbim-line-content)
                   words (cons (car words) (delete-dups (append (list word)
                                                                (cdr words)))))
             ;; (message "delete: %s" words))
-            (eim-delete-line))
+            (chinese-wbim-delete-line))
         (forward-line 1)
         (setq words (list py word)))
       ;;    (message "insert: %s" words)
       (insert (mapconcat 'identity words " ") "\n"))))
 
-(defun eim-py-create-word (word pylist)
+(defun chinese-wbim-py-create-word (word pylist)
   ;; (message "create: %s, %s" word pylist)
-  (let ((py (eim-py-match-py word pylist))
+  (let ((py (chinese-wbim-py-match-py word pylist))
         words)
     (when py
-      (eim-py-intern-word word (car py))
-      (eim-py-intern-word word (cdr py)))))
+      (chinese-wbim-py-intern-word word (car py))
+      (chinese-wbim-py-intern-word word (cdr py)))))
 
-(defun eim-py-rearrange (word pylist)
+(defun chinese-wbim-py-rearrange (word pylist)
   ;; (message "rearrage: %s, %s" word pylist)
-  (let ((py (eim-py-match-py word pylist)))
+  (let ((py (chinese-wbim-py-match-py word pylist)))
     (when py
-      (eim-py-rearrange-1 word
+      (chinese-wbim-py-rearrange-1 word
                           (car py))
-      (eim-py-rearrange-1 word (cdr py)))))
+      (chinese-wbim-py-rearrange-1 word (cdr py)))))
 
-(defun eim-py-rearrange-1 (word py)
-  (eim-py-intern-word word py))
+(defun chinese-wbim-py-rearrange-1 (word py)
+  (chinese-wbim-py-intern-word word py))
 
-(defun eim-py-han-stringp (str)
+(defun chinese-wbim-py-han-stringp (str)
   "Predicate whether the STR is a pinyin of a chinese character"
   (let ((valid t)
         (i 0))
     (while (and (< i (length str)) valid)
-      (if (member (char-to-string (aref str i)) eim-total-char)
+      (if (member (char-to-string (aref str i)) chinese-wbim-total-char)
           (setq valid nil))
       (setq i (1+ i)))
     valid))
 ;;;_. commands
-(defun eim-py-select-current ()
+(defun chinese-wbim-py-select-current ()
   (interactive)
-  (if (null (car eim-current-choices))  ; 如果没有选项，输入空格
+  (if (null (car chinese-wbim-current-choices))  ; 如果没有选项，输入空格
       (progn 
-        (setq eim-current-str (eim-translate last-command-event))
-        (eim-terminate-translation))
-    (let ((str (eim-choice (nth (1- eim-current-pos) (car eim-current-choices))))
+        (setq chinese-wbim-current-str (chinese-wbim-translate last-command-event))
+        (chinese-wbim-terminate-translation))
+    (let ((str (chinese-wbim-choice (nth (1- chinese-wbim-current-pos) (car chinese-wbim-current-choices))))
           chpy pylist)
       (if (> (length str) 1)            ; 重排
-          (eim-py-rearrange str (get-text-property 0 'py str))
-        (setq chpy (nth eim-py-pos eim-py-pylist))
-        (eim-py-rearrange-1 str (concat (car chpy) (cdr chpy))))
-      (setq eim-py-pos (+ eim-py-pos (length str)))
-      (if (= eim-py-pos (length eim-py-pylist)) ; 如果是最后一个，检查
+          (chinese-wbim-py-rearrange str (get-text-property 0 'py str))
+        (setq chpy (nth chinese-wbim-py-pos chinese-wbim-py-pylist))
+        (chinese-wbim-py-rearrange-1 str (concat (car chpy) (cdr chpy))))
+      (setq chinese-wbim-py-pos (+ chinese-wbim-py-pos (length str)))
+      (if (= chinese-wbim-py-pos (length chinese-wbim-py-pylist)) ; 如果是最后一个，检查
                                         ; 是不是在文件中，没有的话，创
                                         ; 建这个词
           (progn
-            (if (not (member eim-current-str (car eim-current-choices)))
-                (eim-py-create-word eim-current-str eim-py-pylist))
-            (eim-terminate-translation))
-        (setq pylist (nthcdr eim-py-pos eim-py-pylist))
-        (setq eim-current-choices (list (eim-py-get-choices pylist))
-              eim-current-pos 1)
-        (eim-py-format-page)))))
+            (if (not (member chinese-wbim-current-str (car chinese-wbim-current-choices)))
+                (chinese-wbim-py-create-word chinese-wbim-current-str chinese-wbim-py-pylist))
+            (chinese-wbim-terminate-translation))
+        (setq pylist (nthcdr chinese-wbim-py-pos chinese-wbim-py-pylist))
+        (setq chinese-wbim-current-choices (list (chinese-wbim-py-get-choices pylist))
+              chinese-wbim-current-pos 1)
+        (chinese-wbim-py-format-page)))))
 
-(defun eim-py-number-select ()
+(defun chinese-wbim-py-number-select ()
   "如果没有可选项，插入数字，否则选择对应的词条"
   (interactive)
-  (if (car eim-current-choices)
+  (if (car chinese-wbim-current-choices)
       (let ((index (- last-command-event ?1))
-            (end (eim-page-end)))
-        (if (> (+ index (eim-page-start)) end)
-            (eim-show)
-          (setq eim-current-pos (+ eim-current-pos index))
-          (setq eim-current-str (concat (substring eim-current-str 0
-                                                   eim-py-pos)
-                                        (eim-choice
-                                         (nth (1- eim-current-pos)
-                                              (car eim-current-choices)))))
-          (eim-py-select-current)))
-    (eim-append-string (char-to-string last-command-event))
-    (eim-terminate-translation)))
+            (end (chinese-wbim-page-end)))
+        (if (> (+ index (chinese-wbim-page-start)) end)
+            (chinese-wbim-show)
+          (setq chinese-wbim-current-pos (+ chinese-wbim-current-pos index))
+          (setq chinese-wbim-current-str (concat (substring chinese-wbim-current-str 0
+                                                   chinese-wbim-py-pos)
+                                        (chinese-wbim-choice
+                                         (nth (1- chinese-wbim-current-pos)
+                                              (car chinese-wbim-current-choices)))))
+          (chinese-wbim-py-select-current)))
+    (chinese-wbim-append-string (char-to-string last-command-event))
+    (chinese-wbim-terminate-translation)))
 
-(defun eim-py-next-page (arg)
+(defun chinese-wbim-py-next-page (arg)
   (interactive "p")
-  (if (= (length eim-current-key) 0)
+  (if (= (length chinese-wbim-current-key) 0)
       (progn
-        (eim-append-string (eim-translate last-command-event))
-        (eim-terminate-translation))
-    (let ((new (+ eim-current-pos (* eim-page-length arg) 1)))
-      (setq eim-current-pos (if (> new 0) new 1)
-            eim-current-pos (eim-page-start))
-      (eim-py-format-page))))
+        (chinese-wbim-append-string (chinese-wbim-translate last-command-event))
+        (chinese-wbim-terminate-translation))
+    (let ((new (+ chinese-wbim-current-pos (* chinese-wbim-page-length arg) 1)))
+      (setq chinese-wbim-current-pos (if (> new 0) new 1)
+            chinese-wbim-current-pos (chinese-wbim-page-start))
+      (chinese-wbim-py-format-page))))
 
-(defun eim-py-previous-page (arg)
+(defun chinese-wbim-py-previous-page (arg)
   (interactive "p")
-  (eim-py-next-page (- arg)))
+  (chinese-wbim-py-next-page (- arg)))
 
-(defun eim-py-quit-no-clear ()
+(defun chinese-wbim-py-quit-no-clear ()
   (interactive)
-  (setq eim-current-str (replace-regexp-in-string "-" ""
-                                                  eim-current-key))
-  (eim-terminate-translation))
+  (setq chinese-wbim-current-str (replace-regexp-in-string "-" ""
+                                                  chinese-wbim-current-key))
+  (chinese-wbim-terminate-translation))
 
-(defun eim-py-backward-kill-py ()
+(defun chinese-wbim-py-backward-kill-py ()
   (interactive)
-  (string-match "['-][^'-]+$" eim-current-key)
-  (setq eim-current-key
-        (replace-match "" nil nil eim-current-key))
-  (eim-py-handle-string))
+  (string-match "['-][^'-]+$" chinese-wbim-current-key)
+  (setq chinese-wbim-current-key
+        (replace-match "" nil nil chinese-wbim-current-key))
+  (chinese-wbim-py-handle-string))
 
 ;;;_. punctuation
-(defun eim-py-translate (char)
-  (eim-punc-translate eim-py-punctuation-list char))
+(defun chinese-wbim-py-translate (char)
+  (chinese-wbim-punc-translate chinese-wbim-py-punctuation-list char))
 
-(defun eim-py-activate-function ()
-  (setq eim-do-completion nil
-        eim-handle-function 'eim-py-handle-string
-        eim-translate-function 'eim-py-translate)
-  (make-local-variable 'eim-py-pylist)
-  (make-local-variable 'eim-py-pos))
+(defun chinese-wbim-py-activate-function ()
+  (setq chinese-wbim-do-completion nil
+        chinese-wbim-handle-function 'chinese-wbim-py-handle-string
+        chinese-wbim-translate-function 'chinese-wbim-py-translate)
+  (make-local-variable 'chinese-wbim-py-pylist)
+  (make-local-variable 'chinese-wbim-py-pos))
 
-;;;_. eim-py-get
-(defun eim-py-get (code)
-  (let ((eim-current-package eim-py-package)
+;;;_. chinese-wbim-py-get
+(defun chinese-wbim-py-get (code)
+  (let ((chinese-wbim-current-package chinese-wbim-py-package)
         words)
     (when (and (stringp code) (string< "" code))
-      (dolist (buf (eim-buffer-list))
+      (dolist (buf (chinese-wbim-buffer-list))
         (with-current-buffer (cdr (assoc "buffer" buf))
           (setq words (append words
                               (cdr
-                               (eim-bisearch-word code
+                               (chinese-wbim-bisearch-word code
                                                   (point-min)
                                                   (point-max)))))))
       (delete-dups words))))
 
-(defun eim-py-get-char-code (char)
-  (eim-get-char-code char eim-py-char-table))
+(defun chinese-wbim-py-get-char-code (char)
+  (chinese-wbim-get-char-code char chinese-wbim-py-char-table))
 
-(defun eim-py-make-char-table (chars)
+(defun chinese-wbim-py-make-char-table (chars)
   (dolist (char chars)
     (let ((code (car char)))
       (dolist (c (cdr char))
-        (let* ((s (intern-soft c eim-py-char-table))
+        (let* ((s (intern-soft c chinese-wbim-py-char-table))
                (py (and s (symbol-value s))))
-          (set (intern c eim-py-char-table) (append py (list code))))))))
+          (set (intern c chinese-wbim-py-char-table) (append py (list code))))))))
 
-(defun eim-py-save-file ()
+(defun chinese-wbim-py-save-file ()
   "保存词库到文件中"
   (interactive)
-  (let* ((eim-current-package eim-py-package)
-         (buffer (car (eim-buffer-list))))
+  (let* ((chinese-wbim-current-package chinese-wbim-py-package)
+         (buffer (car (chinese-wbim-buffer-list))))
     (with-current-buffer (cdr (assoc "buffer" buffer))
       (save-restriction
         (widen)
         (write-region (point-min) (point-max) (cdr (assoc "file" buffer)))))))
 
 ;;;_. load it
-(unless eim-py-initialized
-  (setq eim-py-package eim-current-package)
-  (setq eim-py-punctuation-list
-        (eim-read-punctuation eim-py-package))
-  (let ((eim-current-package eim-py-package))
-    (let ((map (eim-mode-map)))
-      (define-key map " " 'eim-py-select-current)
-      (define-key map "\C-n" 'eim-py-next-page)
-      (define-key map "\C-p" 'eim-py-previous-page)
-      (define-key map "\C-m" 'eim-py-quit-no-clear)
-      (define-key map (kbd "M-DEL") 'eim-py-backward-kill-py)
+(unless chinese-wbim-py-initialized
+  (setq chinese-wbim-py-package chinese-wbim-current-package)
+  (setq chinese-wbim-py-punctuation-list
+        (chinese-wbim-read-punctuation chinese-wbim-py-package))
+  (let ((chinese-wbim-current-package chinese-wbim-py-package))
+    (let ((map (chinese-wbim-mode-map)))
+      (define-key map " " 'chinese-wbim-py-select-current)
+      (define-key map "\C-n" 'chinese-wbim-py-next-page)
+      (define-key map "\C-p" 'chinese-wbim-py-previous-page)
+      (define-key map "\C-m" 'chinese-wbim-py-quit-no-clear)
+      (define-key map (kbd "M-DEL") 'chinese-wbim-py-backward-kill-py)
       (dolist (i (number-sequence 1 9))
-        (define-key map (number-to-string i) 'eim-py-number-select)))
-    (eim-set-active-function 'eim-py-activate-function))
-  (run-hooks 'eim-py-load-hook)
-  (setq eim-py-initialized t)
-  (add-to-list 'kill-emacs-hook 'eim-py-save-file)
+        (define-key map (number-to-string i) 'chinese-wbim-py-number-select)))
+    (chinese-wbim-set-active-function 'chinese-wbim-py-activate-function))
+  (run-hooks 'chinese-wbim-py-load-hook)
+  (setq chinese-wbim-py-initialized t)
+  (add-to-list 'kill-emacs-hook 'chinese-wbim-py-save-file)
   
-(eim-py-make-char-table
+(chinese-wbim-py-make-char-table
 '(
 ("a" "阿" "啊" "呵" "腌" "嗄" "锕" "吖")
 ("ai" "爱" "哀" "挨" "碍" "埃" "癌" "艾" "唉" "矮" "哎" "皑" "蔼" "隘" "暧" "霭" "捱" "嗳" "瑷" "嫒" "锿" "嗌" "砹")

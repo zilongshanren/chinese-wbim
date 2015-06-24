@@ -39,26 +39,26 @@
 
 (require 'chinese-wbim-table)
 
-(defvar eim-cj-package nil)
-(defvar eim-cj-punctuation-list nil)
-(defvar eim-cj-initialized nil)
-(defvar eim-cj-load-hook nil)
-(defvar eim-cj-char-table (make-vector 1511 0))
+(defvar chinese-wbim-cj-package nil)
+(defvar chinese-wbim-cj-punctuation-list nil)
+(defvar chinese-wbim-cj-initialized nil)
+(defvar chinese-wbim-cj-load-hook nil)
+(defvar chinese-wbim-cj-char-table (make-vector 1511 0))
 
-(unless eim-cj-initialized
-  (setq eim-cj-package eim-current-package)
-  (setq eim-cj-punctuation-list
-        (eim-read-punctuation eim-cj-package))
-  (run-hooks 'eim-cj-load-hook)
+(unless chinese-wbim-cj-initialized
+  (setq chinese-wbim-cj-package chinese-wbim-current-package)
+  (setq chinese-wbim-cj-punctuation-list
+        (chinese-wbim-read-punctuation chinese-wbim-cj-package))
+  (run-hooks 'chinese-wbim-cj-load-hook)
   (let ((path (file-name-directory load-file-name)))
-    (load (concat path "eim-cj-chars")))
-  (eim-set-option 'char-table eim-cj-char-table)
-  (eim-set-option 'punctuation-list 'eim-cj-punctuation-list)
-  (eim-set-option 'max-length 5)
-  (eim-set-option 'translate-chars '(?x ?z))
-  (eim-set-option 'all-completion-limit 3)
-  (eim-set-active-function 'eim-table-active-function)
-  (setq eim-cj-initialized t))
+    (load (concat path "chinese-wbim-cj-chars")))
+  (chinese-wbim-set-option 'char-table chinese-wbim-cj-char-table)
+  (chinese-wbim-set-option 'punctuation-list 'chinese-wbim-cj-punctuation-list)
+  (chinese-wbim-set-option 'max-length 5)
+  (chinese-wbim-set-option 'translate-chars '(?x ?z))
+  (chinese-wbim-set-option 'all-completion-limit 3)
+  (chinese-wbim-set-active-function 'chinese-wbim-table-active-function)
+  (setq chinese-wbim-cj-initialized t))
 
 (provide 'chinese-wbim-cj)
 ;;; chinese-wbim-cj.el ends here

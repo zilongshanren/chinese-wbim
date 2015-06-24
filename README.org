@@ -12,8 +12,8 @@
 * 特点
 ** 五笔
  1. 临时拼音输入汉字。用 z 开头可以输入汉字的拼音并查看其五笔字码。
- 2. 反查五笔。用 M-x eim-describe-char 可以查看光标处汉字的五笔字码。
- 3. 加入自造词。M-x eim-table-add-word，默认是光标前的两个汉字。用 C-a 和 C-e 调整。
+ 2. 反查五笔。用 M-x chinese-wbim-describe-char 可以查看光标处汉字的五笔字码。
+ 3. 加入自造词。M-x chinese-wbim-table-add-word，默认是光标前的两个汉字。用 C-a 和 C-e 调整。
  4. 可以保存选择的历史。
 
 * 安装
@@ -23,23 +23,23 @@ PREFIX 使文件安装到指定位置。windows 下可以直接设置 ELISPDIR�
 如果没有 make 命令，可以直接复制 EL 和 EXTRAFILES 到 load-path 里的目
 录里，推荐是在 site-lisp/eim 目录中。
 
-在 .emacs 加入这几行就行了。五笔输入法要修改 eim-wb-history-file 和
-eim-wb-user-file 的位置。eim-wb-history-file 要修改成能保存的文件名即
-可。eim-wb-user-file 可以不修改，如果不改则使用默认的 mywb.txt。如果修
+在 .emacs 加入这几行就行了。五笔输入法要修改 chinese-wbim-wb-history-file 和
+chinese-wbim-wb-user-file 的位置。chinese-wbim-wb-history-file 要修改成能保存的文件名即
+可。chinese-wbim-wb-user-file 可以不修改，如果不改则使用默认的 mywb.txt。如果修
 改则可以自己指定一个文件。文件格式参考 mywb.txt。
 
 #+begin_src emacs-lisp
-(autoload 'eim-use-package "chinese-wbim" "Another emacs input method")
+(autoload 'chinese-wbim-use-package "chinese-wbim" "Another emacs input method")
 ;; Tooltip 暂时还不好用
-(setq eim-use-tooltip nil)
+(setq chinese-wbim-use-tooltip nil)
 
 (register-input-method
- "chinese-wbim" "euc-cn" 'eim-use-package
+ "chinese-wbim" "euc-cn" 'chinese-wbim-use-package
  "五笔" "汉字五笔输入法" "wb.txt")
 
 ;; 用 ; 暂时输入英文
 (require 'chinese-wbim-extra)
-(global-set-key ";" 'eim-insert-ascii)
+(global-set-key ";" 'chinese-wbim-insert-ascii)
 
 ;设置默认输入法
 (setq default-input-method 'chinese-wbim)
@@ -79,14 +79,14 @@ $ perl mergepy.pl 自己的词库文件 新词库文件 -o py-new.txt
 
 * 增加汉字
 ** 五笔输入法
-对于五笔输入法，可以选择导入 eim-wb-gbk，只要在 .emacs 里加上：
+对于五笔输入法，可以选择导入 chinese-wbim-wb-gbk，只要在 .emacs 里加上：
 
 #+begin_src emacs-lisp
-(setq eim-wb-use-gbk t)
+(setq chinese-wbim-wb-use-gbk t)
 #+end_src
 
 
-另一个选择是在 eim-wb-user-file 里加上需要的汉字。这样基本上是够用的。
+另一个选择是在 chinese-wbim-wb-user-file 里加上需要的汉字。这样基本上是够用的。
 一般的输入 gbk 汉字是没有问题，因为wb.txt 中已经加入了 fcitx 中所有的
 gbk 汉字，只是如果需要造词时，不导入 gbk 汉字是无法自动造词的。
 
@@ -95,87 +95,87 @@ gbk 汉字，只是如果需要造词时，不导入 gbk 汉字是无法自动�
 ** 初级定制方法：
 例如，要设置按键，可以这样：
 #+begin_src emacs-lisp
-(defun my-eim-wb-activate-function ()
-  (add-hook 'eim-active-hook 
+(defun my-chinese-wbim-wb-activate-function ()
+  (add-hook 'chinese-wbim-active-hook 
         (lambda ()
-          (let ((map (eim-mode-map)))
-            (define-key map "-" 'eim-previous-page)
-            (define-key map "=" 'eim-next-page)))))
+          (let ((map (chinese-wbim-mode-map)))
+            (define-key map "-" 'chinese-wbim-previous-page)
+            (define-key map "=" 'chinese-wbim-next-page)))))
 #+end_src
 
 然后要这样 register-input-method：
 
 #+begin_src emacs-lisp
 (register-input-method
- "eim-wb" "euc-cn" 'eim-use-package
+ "chinese-wbim-wb" "euc-cn" 'chinese-wbim-use-package
  "五笔" "汉字五笔输入法" "wb.txt"
- 'my-eim-wb-activate-function)
+ 'my-chinese-wbim-wb-activate-function)
 #+end_src
 
 
 或者这样：
 #+begin_src emacs-lisp
-(add-hook 'eim-wb-load-hook
+(add-hook 'chinese-wbim-wb-load-hook
           (lambda ()
-            (let ((map (eim-mode-map)))
-              (define-key map "-" 'eim-previous-page)
-              (define-key map "=" 'eim-next-page))))
+            (let ((map (chinese-wbim-mode-map)))
+              (define-key map "-" 'chinese-wbim-previous-page)
+              (define-key map "=" 'chinese-wbim-next-page))))
 #+end_src
 
 这样不需要再写一个函数。
 拼音输入法是类似的。
 
-对于五笔输入法，如果不想记录上次输入位置，设置 eim-wb-history-file 为
+对于五笔输入法，如果不想记录上次输入位置，设置 chinese-wbim-wb-history-file 为
 nil。
 
 ** 高级定制方法：
-- eim-use-package 可以接受两个参数，一个是 word-file，给出一个词库，一个
+- chinese-wbim-use-package 可以接受两个参数，一个是 word-file，给出一个词库，一个
 是 active-function，这个 active-function 是在每次切换时都要调用的。如果
 想只在第一次启动输入法时调用一些命令，最好定义一个变量，在启动之后设置
-为 t，或者加入到 eim-load-hook 中。在调用这个命令时，eim-current-package
+为 t，或者加入到 chinese-wbim-load-hook 中。在调用这个命令时，chinese-wbim-current-package
 可能还没有定义（第一次启动），这样，如果要修改或者使用
-eim-current-package 中的变量，就要用 eim-load-hook 或者eim-active-hook
-或者 eim-active-function。eim-load-hook 只在第一次启动输入法时调
-用，eim-active-function 和 eim-active-hook 每次都要调用。一般来说，如果
-要修改按键绑定，就加入到 eim-load-hook 中。如果要修改 eim-page-length
-这样的局部变量，使用 eim-active-function 或者 eim-active-hook。
-eim-active-function 是为有专门的 lib 的输入法设计的，这样不用在
-register-input-method 中加入一个 active-function。而 eim-active-hook
+chinese-wbim-current-package 中的变量，就要用 chinese-wbim-load-hook 或者chinese-wbim-active-hook
+或者 chinese-wbim-active-function。chinese-wbim-load-hook 只在第一次启动输入法时调
+用，chinese-wbim-active-function 和 chinese-wbim-active-hook 每次都要调用。一般来说，如果
+要修改按键绑定，就加入到 chinese-wbim-load-hook 中。如果要修改 chinese-wbim-page-length
+这样的局部变量，使用 chinese-wbim-active-function 或者 chinese-wbim-active-hook。
+chinese-wbim-active-function 是为有专门的 lib 的输入法设计的，这样不用在
+register-input-method 中加入一个 active-function。而 chinese-wbim-active-hook
 是为用户定制设计的，这样不用专门写到一个文件中。设置
-eim-active-function 使用eim-set-active-function 函数。
+chinese-wbim-active-function 使用chinese-wbim-set-active-function 函数。
 
-- eim-stop-function:
-这个函数是用于决定是否停止转换。比如五笔中可以设置当 eim-current-key 大于 4
+- chinese-wbim-stop-function:
+这个函数是用于决定是否停止转换。比如五笔中可以设置当 chinese-wbim-current-key 大于 4
 时就停止。默认是 nil，也就是说可以无限的输入。
 
-- eim-translate-function:
-当输入的字符是第一个字符（eim-current-key为空）时，如果不在
-eim-first-char 中，或者不是第一个字符，但是不在 eim-total-char 中，会
+- chinese-wbim-translate-function:
+当输入的字符是第一个字符（chinese-wbim-current-key为空）时，如果不在
+chinese-wbim-first-char 中，或者不是第一个字符，但是不在 chinese-wbim-total-char 中，会
 停止转换。这时，会调用这个函数来处理最后一个输入字符。通常用这个函数来
 输入标点。
 
-- eim-add-completion-function:
+- chinese-wbim-add-completion-function:
 通过这个函数来为当前的词条添加更多的选项。当往后翻页超出直接查找到的词
 条时，会调用这个函数，如果添加结束，返回 t，还需要再添加返回 nil。
 我写的五笔输入法用这个函数时是直接一次性加完。如果要每次添加几个的话，
-一种办法就是在 eim-current-choice 中加入一个新元素，记录这次搜索到哪个
+一种办法就是在 chinese-wbim-current-choice 中加入一个新元素，记录这次搜索到哪个
 位置。下次从这个位置继续，直到结束，比较麻烦。而且，一次加完的速度也很
 快，就用简单的办法好了。
 
-- eim-format-function:
-eim-current-choice 中的第一个元素是通常是一个字符串列表。但是也可以含
+- chinese-wbim-format-function:
+chinese-wbim-current-choice 中的第一个元素是通常是一个字符串列表。但是也可以含
 有 list。这时需要给出一个显示的函数。比如我在五笔输入法中搜索出可能的
 单字或者输入拼音时显示五笔字根。
-这个函数要接受四个参数，分别是当前输入的字符串 eim-current-key，
+这个函数要接受四个参数，分别是当前输入的字符串 chinese-wbim-current-key，
 当前页数，所有页数，这一页的选项。
 
-- eim-handle-function:
+- chinese-wbim-handle-function:
 这个函数是决定输入法行为的核心函数。通常要完成的任务是：
 1. 决定是否要继续转换。
-2. 设置 eim-current-choice, eim-current-pos, eim-current-str,
-   eim-guidance-str, 最后调用 eim-show 显示结果。通常如果
-   eim-current-choice 的 CAR 不为空的话，就调用 eim-format-page 显示。
-   如果为空，则设置相应的 eim-current-str 和 eim-guidance-str，调用
-   eim-show 显示。
+2. 设置 chinese-wbim-current-choice, chinese-wbim-current-pos, chinese-wbim-current-str,
+   chinese-wbim-guidance-str, 最后调用 chinese-wbim-show 显示结果。通常如果
+   chinese-wbim-current-choice 的 CAR 不为空的话，就调用 chinese-wbim-format-page 显示。
+   如果为空，则设置相应的 chinese-wbim-current-str 和 chinese-wbim-guidance-str，调用
+   chinese-wbim-show 显示。
 
-参考 eim-wb 和 eim-py 的写法。
+参考 chinese-wbim-wb 和 chinese-wbim-py 的写法。

@@ -33,7 +33,7 @@
 ;;; Commentary:
 
 ;;; Code:
-(eim-make-char-table '(
+(chinese-wbim-make-char-table '(
 ("a" "日")
 ("aa" "昌")
 ("aaa" "晶")
@@ -20909,4 +20909,4 @@
 ("yyyym" "ˊ")
 ("yyyyn" "ˇ")
 ("yyyyo" "ˋ")
-) eim-cj-char-table)
+) chinese-wbim-cj-char-table)

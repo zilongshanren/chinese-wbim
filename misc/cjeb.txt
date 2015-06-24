@@ -10,7 +10,7 @@
 first-char=[zyxwvutsrqponmlkjihgfedcba
 total-char=;vqhfent/oylk.umczpgxwjbdsir,a
 page-length=3
-lib=eim-eb
+lib=chinese-wbim-eb
 other-files=ebpy.txt
 
 [Punctuation]

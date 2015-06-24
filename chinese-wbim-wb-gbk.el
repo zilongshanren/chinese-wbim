@@ -34,7 +34,7 @@
 ;;
 ;;; Code:
 
-(eim-make-char-table '(
+(chinese-wbim-make-char-table '(
 ("aaaa" "工")
 ("aaar" "菚")
 ("aad" "匞" "式")
@@ -17277,4 +17277,4 @@
 ("yyxy" "詃")
 ("yyyf" "譶")
 ("yyyy" "言")
-) eim-wb-char-table)
+) chinese-wbim-wb-char-table)
