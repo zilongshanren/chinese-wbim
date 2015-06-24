@@ -1,4 +1,4 @@
-;;; chinese-wbim-cj --- Enable Wubi(五笔) Input Method in Emacs.
+;;; chinese-wbim-cj.el --- Enable Wubi(五笔) Input Method in Emacs.
 
 ;; Copyright (C) 2015-2016, Guanghui Qu
 
