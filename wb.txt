@@ -50951,7 +50951,7 @@ thgd 牍 牘
 thgf 牌 处于 牉 牔
 thgh 牗
 thgi 怎不
-thgj 自理 处理 牏
+thgj 处理 自理 牏
 thgk 处事 自带 牊
 thgl 版画
 thgm 自责 牘

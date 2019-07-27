@@ -1,12 +1,15 @@
 * 本项目说明
-本项目fork至https://github.com/wenbinye/emacs-eim
-因为作者很久都不更新了，所以fork过来维护。本项目的目的不是为了取代Emacs-eim,
-而是专注于改善Emacs中的五笔输入法。
+
+** Deprecated!! 推荐使用 pyim, pyim 目前支持拼音和五笔输入，并且 pyim 可以跟 librime 配合一起输入，这样我们就可以在 Emacs 里面非常方便地使用五笔拼音输入法了。配置参考 https://emacs-china.org/t/mac-emacs-rime/10063/26
+
+本项目 fork 至https://github.com/wenbinye/emacs-eim
+因为作者很久都不更新了，所以 fork 过来维护。本项目的目的不是为了取代 Emacs-eim,
+而是专注于改善 Emacs 中的五笔输入法。
 
 * 后续开发计划 [25%]
-- [X] 添加MELPA支持
+- [X] 添加 MELPA 支持
 - [ ] 重构代码，移除拼音输入法
-- [ ] 添加popup支持
+- [ ] 添加 popup 支持
 - [ ] 添加拼音五笔混合输入支持
 
 * 特点
@@ -87,7 +90,7 @@ $ perl mergepy.pl 自己的词库文件 新词库文件 -o py-new.txt
 
 
 另一个选择是在 chinese-wbim-wb-user-file 里加上需要的汉字。这样基本上是够用的。
-一般的输入 gbk 汉字是没有问题，因为wb.txt 中已经加入了 fcitx 中所有的
+一般的输入 gbk 汉字是没有问题，因为 wb.txt 中已经加入了 fcitx 中所有的
 gbk 汉字，只是如果需要造词时，不导入 gbk 汉字是无法自动造词的。
 
 * 如何定制一个输入法
@@ -134,7 +137,7 @@ nil。
 想只在第一次启动输入法时调用一些命令，最好定义一个变量，在启动之后设置
 为 t，或者加入到 chinese-wbim-load-hook 中。在调用这个命令时，chinese-wbim-current-package
 可能还没有定义（第一次启动），这样，如果要修改或者使用
-chinese-wbim-current-package 中的变量，就要用 chinese-wbim-load-hook 或者chinese-wbim-active-hook
+chinese-wbim-current-package 中的变量，就要用 chinese-wbim-load-hook 或者 chinese-wbim-active-hook
 或者 chinese-wbim-active-function。chinese-wbim-load-hook 只在第一次启动输入法时调
 用，chinese-wbim-active-function 和 chinese-wbim-active-hook 每次都要调用。一般来说，如果
 要修改按键绑定，就加入到 chinese-wbim-load-hook 中。如果要修改 chinese-wbim-page-length
@@ -142,14 +145,14 @@ chinese-wbim-current-package 中的变量，就要用 chinese-wbim-load-hook 或
 chinese-wbim-active-function 是为有专门的 lib 的输入法设计的，这样不用在
 register-input-method 中加入一个 active-function。而 chinese-wbim-active-hook
 是为用户定制设计的，这样不用专门写到一个文件中。设置
-chinese-wbim-active-function 使用chinese-wbim-set-active-function 函数。
+chinese-wbim-active-function 使用 chinese-wbim-set-active-function 函数。
 
 - chinese-wbim-stop-function:
 这个函数是用于决定是否停止转换。比如五笔中可以设置当 chinese-wbim-current-key 大于 4
 时就停止。默认是 nil，也就是说可以无限的输入。
 
 - chinese-wbim-translate-function:
-当输入的字符是第一个字符（chinese-wbim-current-key为空）时，如果不在
+当输入的字符是第一个字符（chinese-wbim-current-key 为空）时，如果不在
 chinese-wbim-first-char 中，或者不是第一个字符，但是不在 chinese-wbim-total-char 中，会
 停止转换。这时，会调用这个函数来处理最后一个输入字符。通常用这个函数来
 输入标点。
